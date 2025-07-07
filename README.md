@@ -5,9 +5,7 @@
 
 * loadModel(modelId: int) - loads model by id
 * getForecast(hours: int): int - returns weather type coming in {hours}
-* log(s: string) - adds a new entry in CLEO.log
 * setCarPlateText(car: int, text: string) - changes the text on car's number place
-* saveScreenToPng(f: string, left: int, top: int, w: int, h: int) - saves portion of screen to a png file
 * replaceStringInFile(f: string, find: string, replace: string) - replaces string {find} in {f} with {replace}
 * spawnCar(modelId: int): int - spawns a new car like a cheat and returns its handle
 * isPointInsideGarage(x: float, y: float, z: float): logical - return true if point is located inside a garage
@@ -19,3 +17,10 @@
 * setUserSettingsInt(settingId: int, value: int) - sets new value of a particular configuration in the main menu. list of settings TBD
 * getUserSettingsFloat(settingId: int): float - returns an integer value of a particular configuration in the main menu. list of settings TBD
 * setUserSettingsFloat(settingId: int, value: float) - sets new value of a particular configuration in the main menu. list of settings TBD
+
+### Debug
+* log(s: string) - adds a new entry in CLEO.log
+* dbg() - pauses script execution until F5 is pressed
+* dumpScriptVars() - writes a list of local variables (0@-31@) to CLEO.log
+* viewScriptVars() - prints local variables on screen
+* saveScreenToPng(f: string, left: int, top: int, w: int, h: int) - saves portion of screen to a png file
