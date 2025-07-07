@@ -4,10 +4,10 @@
 ### Uncategorized
 
 * loadModel(modelId: int) - loads model by id
-* getForecast(hours: int): int - returns weather type coming in {hours}
+* getWeatherForecast(hours: int): int - returns weather type coming in {hours}
 * setCarPlateText(car: int, text: string) - changes the text on car's number place
 * replaceStringInFile(f: string, find: string, replace: string) - replaces string {find} in {f} with {replace}
-* spawnCar(modelId: int): int - spawns a new car like a cheat and returns its handle
+* spawnCar(modelId: int): Car - spawns a new car like a cheat and returns its handle
 * isPointInsideGarage(x: float, y: float, z: float): logical - return true if point is located inside a garage
 * getEntityPos(entity: int): float, float, float - returns XYZ coords of an entity (CEntity)
 * clearBlipOnCharDeath(char: int) - makes the blip to disappear when {char} dies
