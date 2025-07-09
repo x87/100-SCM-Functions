@@ -31,3 +31,7 @@
 * dumpScriptVars() - writes a list of local variables (0@-31@) to CLEO.log
 * viewScriptVars() - prints local variables on screen
 * saveScreenToPng(f: string, left: int, top: int, w: int, h: int) - saves portion of screen to a png file
+* viewPlayerCoords() - prints player coordinates
+* viewEntityCoords3d(entity: int) - prints entity (CVehicle, CPed, CObject) coordinates above it
+* reloadThisScript() - reload current script from disk
+* teleportToNearestCar() - teleports player to the nearest car
