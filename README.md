@@ -19,6 +19,12 @@
 * setUserSettingsFloat(settingId: int, value: float) - sets new value of a particular configuration in the main menu. list of settings TBD
 * getDummyCoords(vehicle: Car, dummyId: int): float, float, float - returns XYZ of a particular dummy of the car
 
+### Math
+* min(a:int, b:int): int - returns the smallest of {a} and {b}
+* minf(a:float, b:float): float - returns the smallest of {a} and {b}
+* max(a:int, b:int): int - returns the largest of {a} and {b}
+* maxf(a:float, b:float): float - returns the largest of {a} and {b}
+
 ### Debug
 * log(s: string) - adds a new entry in CLEO.log
 * dbg() - pauses script execution until F5 is pressed
