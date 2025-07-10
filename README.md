@@ -71,9 +71,27 @@ end
 ```
 
 ### Debug
-* log(s: string) - adds a new entry in CLEO.log
-* dbg() - pauses script execution until F5 is pressed
-* dumpScriptVars() - writes a list of local variables (0@-31@) to CLEO.log
+#### log
+```lua
+/// Adds a new entry in CLEO.log
+function log(s: string)
+    debug_on
+    write_debug s
+    debug_off
+end
+```
+* dbg() - pauses script execution until F5 is pressed/// writes a list of local variables (0@-31@) to CLEO.log
+
+#### dumpScriptVars
+```lua
+/// writes a list of local variables (0@-31@) to CLEO.log
+:dumpScriptVars
+    int buf = allocate_memory 512
+    string_format {buffer} buf {format} "%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d" {args} 0@ 1@ 2@ 3@ 4@ 5@ 6@ 7@ 8@ 9@ 10@ 11@ 12@ 13@ 14@ 15@ 16@ 17@ 18@ 19@ 20@ 21@ 22@ 23@ 24@ 25@ 26@ 27@ 28@ 29@ 30@ 31@
+    log(buf)
+    free_memory {address} buf
+return
+```
 * viewScriptVars() - prints local variables on screen
 * saveScreenToPng(f: string, left: int, top: int, w: int, h: int) - saves portion of screen to a png file
 * viewPlayerCoords() - prints player coordinates
