@@ -20,10 +20,51 @@
 * getDummyCoords(vehicle: Car, dummyId: int): float, float, float - returns XYZ of a particular dummy of the car
 
 ### Math
-* min(a:int, b:int): int - returns the smallest of {a} and {b}
-* minf(a:float, b:float): float - returns the smallest of {a} and {b}
-* max(a:int, b:int): int - returns the largest of {a} and {b}
-* maxf(a:float, b:float): float - returns the largest of {a} and {b}
+```lua
+/// Returns the smallest of {a} and {b}
+function min(a: int, b: int): int
+    if a > b 
+    then
+        return b
+    else
+        return a
+    end
+end
+```
+```lua
+/// Returns the smallest of {a} and {b}
+function minf(a: float, b: float): float
+    if a > b 
+    then
+        return b
+    else
+        return a
+    end
+end
+```
+
+```lua
+/// Returns the largest of {a} and {b}
+function max(a: int, b: int): int
+    if a < b 
+    then
+        return b
+    else
+        return a
+    end
+end
+```
+```lua
+/// Returns the largest of {a} and {b}
+function maxf(a: float, b: float): int
+    if a < b 
+    then
+        return b
+    else
+        return a
+    end
+end
+```
 
 ### Debug
 * log(s: string) - adds a new entry in CLEO.log
