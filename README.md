@@ -20,6 +20,8 @@
 * getDummyCoords(vehicle: Car, dummyId: int): float, float, float - returns XYZ of a particular dummy of the car
 
 ### Math
+
+#### min
 ```lua
 /// Returns the smallest of {a} and {b}
 function min(a: int, b: int): int
@@ -31,6 +33,7 @@ function min(a: int, b: int): int
     end
 end
 ```
+#### minf
 ```lua
 /// Returns the smallest of {a} and {b}
 function minf(a: float, b: float): float
@@ -42,7 +45,7 @@ function minf(a: float, b: float): float
     end
 end
 ```
-
+#### max
 ```lua
 /// Returns the largest of {a} and {b}
 function max(a: int, b: int): int
@@ -54,6 +57,7 @@ function max(a: int, b: int): int
     end
 end
 ```
+#### maxf
 ```lua
 /// Returns the largest of {a} and {b}
 function maxf(a: float, b: float): int
