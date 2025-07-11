@@ -150,7 +150,7 @@ end
 ### Debug
 #### log
 ```lua
-/// Adds a new entry in CLEO.log
+/// Adds a new entry in CLEO.log. Requires `LegacyDebugOpcodes = 1` in cleo\cleo_plugins\SA.DebugUtils.ini 
 function log(s: string)
     debug_on
     write_debug s
@@ -182,10 +182,13 @@ return
 /// Prints player coordinates
 function viewPlayerCoords()
     float x, y, z
-    
+
     use_text_commands {state} true
     x, y, z = get_char_coordinates $scplayer
-    display_text_formatted {offsetLeft} 50.0 {offsetTop} 100.0 {format} "%.2f %.2f %.2f" {args} x y z
+    set_text_wrapx {width} 640.0
+    set_text_centre {state} true
+    set_text_centre_size {width} 640.0
+    display_text_formatted {offsetLeft} 320.0 {offsetTop} 20.0 {format} "%.2f %.2f %.2f" {args} x y z
 end
 ```
 * viewEntityCoords3d(entity: int) - prints entity (CVehicle, CPed, CObject) coordinates above it
