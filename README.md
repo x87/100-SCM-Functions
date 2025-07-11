@@ -80,8 +80,6 @@ function log(s: string)
     debug_off
 end
 ```
-* dbg() - pauses script execution until F5 is pressed/// writes a list of local variables (0@-31@) to CLEO.log
-
 #### dumpScriptVars
 ```lua
 /// writes a list of local variables (0@-31@) to CLEO.log
@@ -92,9 +90,48 @@ end
     free_memory {address} buf
 return
 ```
-* viewScriptVars() - prints local variables on screen
+#### viewScriptVars
+```
+/// Prints local variables on screen
+:viewScriptVars
+    use_text_commands {state} true
+    display_text_formatted {offsetLeft} 50.0 {offsetTop} 100.0 {format} "%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d" {args} 0@ 1@ 2@ 3@ 4@ 5@ 6@ 7@ 8@ 9@ 10@ 11@ 12@ 13@ 14@ 15@ 16@ 17@ 18@ 19@ 20@ 21@ 22@ 23@ 24@ 25@ 26@ 27@ 28@ 29@ 30@ 31@
+return
+```
 * saveScreenToPng(f: string, left: int, top: int, w: int, h: int) - saves portion of screen to a png file
-* viewPlayerCoords() - prints player coordinates
+
+#### viewPlayerCoords
+```lua
+/// Prints player coordinates
+function viewPlayerCoords()
+    float x, y, z
+    
+    use_text_commands {state} true
+    x, y, z = get_char_coordinates $scplayer
+    display_text_formatted {offsetLeft} 50.0 {offsetTop} 100.0 {format} "%.2f %.2f %.2f" {args} x y z
+end
+```
 * viewEntityCoords3d(entity: int) - prints entity (CVehicle, CPed, CObject) coordinates above it
 * reloadThisScript() - reload current script from disk
-* teleportToNearestCar() - teleports player to the nearest car
+
+#### teleportToNearestCar
+```lua
+/// Teleports player to the nearest car
+function teleportToNearestCar()
+    float x, y, z
+    float radius = 5.0
+    x, y, z = get_char_coordinates $scplayer
+
+    int handle = get_random_car_in_sphere_no_save_recursive {pos} x y z {radius} radius {findNext} false {skipWrecked} true
+    while handle == -1
+        radius += 5.0
+        if radius > 100.0
+        then
+            return // no cars nearby
+        end
+        handle = get_random_car_in_sphere_no_save_recursive {pos} x y z {radius} radius {findNext} true {skipWrecked} true // get next
+    end
+    
+    warp_char_into_car $scplayer {vehicle} handle
+end
+```
