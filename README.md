@@ -9,10 +9,48 @@
 * replaceStringInFile(f: string, find: string, replace: string) - replaces string {find} in {f} with {replace}
 * spawnCar(modelId: int): Car - spawns a new car like a cheat and returns its handle
 * isPointInsideGarage(x: float, y: float, z: float): logical - return true if point is located inside a garage
-* getEntityPos(entity: int): float, float, float - returns XYZ coords of an entity (CEntity)
+
+#### getEntityPos
+```lua
+// Returns XYZ coords of an entity (CEntity)
+function getEntityPos(address: int): float, float, float
+    int vec = read_memory_with_offset {address} address {offset} 0x14 {size} 4
+    if vec > 0
+    then
+        vec = vec + 0x30 // matrix->pos
+    else
+        vec = address + 4 // entity->simpleCoors->pos
+    end
+    
+    float x, y, z 
+    x = read_memory_with_offset {address} vec {offset} 0x0 {size} 4
+    y = read_memory_with_offset {address} vec {offset} 0x4 {size} 4
+    z = read_memory_with_offset {address} vec {offset} 0x8 {size} 4
+    return x, y, z
+end
+```
 * clearBlipOnCharDeath(char: int) - makes the blip to disappear when {char} dies
-* isOnMission() - checks if on mission flag is set
-* setOnMission(state: int) - sets on mission flag
+
+#### isOnMission
+```lua
+/// Checks if on mission flag is set
+function isOnmission(): logical
+    int address = -2221
+    int offset = &0(address,1i) / 4
+    int flag = &0(offset,1i)
+    return flag <> 0
+end
+```
+
+#### setOnMission
+```lua
+/// Sets on mission flag
+function setOnMission(flag: int)
+    int address = -2221
+    int offset = &0(address,1i) / 4
+    &0(offset,1i) = flag
+end
+```
 * getUserSettingsInt(settingId: int): int - returns an integer value of a particular configuration in the main menu. list of settings TBD
 * setUserSettingsInt(settingId: int, value: int) - sets new value of a particular configuration in the main menu. list of settings TBD
 * getUserSettingsFloat(settingId: int): float - returns an integer value of a particular configuration in the main menu. list of settings TBD
@@ -112,7 +150,19 @@ function viewPlayerCoords()
 end
 ```
 * viewEntityCoords3d(entity: int) - prints entity (CVehicle, CPed, CObject) coordinates above it
-* reloadThisScript() - reload current script from disk
+
+#### reloadThisScript
+```lua
+/// Reload current script from disk
+function reloadThisScript()
+    int buf = allocate_memory 256
+    buf = get_script_filename -1 true
+    int addr = get_this_script_struct
+    stream_custom_script buf
+    terminate_script addr
+    free_memory buf
+end
+```
 
 #### teleportToNearestCar
 ```lua
