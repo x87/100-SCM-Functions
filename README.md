@@ -3,11 +3,50 @@
 
 ### Uncategorized
 
-* loadModel(modelId: int) - loads model by id
+#### loadModel
+```lua
+/// Loads model by id
+function loadModel(modelId: int)
+    request_model modelId
+    while not has_model_loaded {modelId} modelId
+        wait 0
+    end
+end
+```
 * getWeatherForecast(hours: int): int - returns weather type coming in {hours}
-* setCarPlateText(car: int, text: string) - changes the text on car's number place
+
+#### setCarPlateText
+```lua
+/// Changes the text on car's number place
+function setCarPlateText(vehicle: Car, plateText: string)
+    int pVehicle = Memory.GetVehiclePointer(vehicle)
+    int pCustomCarPlate = read_memory_with_offset {address} pVehicle {offset} 0x588 {size} 4
+    if is_truthy pCustomCarPlate
+    then
+        RwTextureDestroy(pCustomCarPlate)
+    end
+    int plateTexture = CCustomCarPlateMgr_CreatePlateTexture(plateText, -1)
+    write_memory_with_offset {address} pVehicle {offset} 0x588 {size} 4 {value} plateTexture
+
+    function CCustomCarPlateMgr_CreatePlateTexture<cdecl, 0x6FDEA0>(text: string, plateType: int): int
+    function RwTextureDestroy<cdecl, 0x7F3820>(texture: int)
+end
+```
 * replaceStringInFile(f: string, find: string, replace: string) - replaces string {find} in {f} with {replace}
-* spawnCar(modelId: int): Car - spawns a new car like a cheat and returns its handle
+
+#### spawnCar
+```lua
+/// Spawns a new car like a cheat and returns its handle
+function spawnCar(modelId: int): int
+
+    int pCheatCar = CCheat_VehicleCheat(modelId)
+    Car hCheatCar = get_vehicle_ref {address} pCheatCar
+    return hCheatCar
+
+    /// Spawns a vehicle of this model in front of the player
+    function CCheat_VehicleCheat<cdecl, 0x43A0B0>(vehicleModelId: int): int
+end
+```
 * isPointInsideGarage(x: float, y: float, z: float): logical - return true if point is located inside a garage
 
 #### getEntityPos
