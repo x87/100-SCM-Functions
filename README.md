@@ -199,10 +199,9 @@ end
 function reloadThisScript()
     int buf = allocate_memory 256
     buf = get_script_filename -1 true
-    int addr = get_this_script_struct
     stream_custom_script buf
     free_memory buf
-    terminate_script addr
+    terminate_this_script
 end
 ```
 
