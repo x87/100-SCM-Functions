@@ -201,8 +201,8 @@ function reloadThisScript()
     buf = get_script_filename -1 true
     int addr = get_this_script_struct
     stream_custom_script buf
-    terminate_script addr
     free_memory buf
+    terminate_script addr
 end
 ```
 
