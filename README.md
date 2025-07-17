@@ -3,6 +3,23 @@
 
 ### Uncategorized
 
+#### allocateString
+
+```lua
+/// Creates a heap-allocated string
+function allocate_string(s: string): int
+    int len = get_text_length {text} s
+    len++
+    int buf = allocate_memory {size} len
+    string_format buf "%s" s
+    return buf
+end
+
+function deallocate_string(s: string)
+    free_memory {address} s
+end
+```
+
 #### loadModel
 ```lua
 /// Loads model by id
