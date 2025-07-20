@@ -3,6 +3,21 @@
 
 ### Uncategorized
 
+#### getCameraAngle
+
+```
+/// Return camera rotation angle
+function getCameraAngle(): float
+    float x1, y1, z1, x2, y2, z2
+    x1, y1, z1 = get_active_camera_coordinates
+    x2, y2, z2 = get_active_camera_point_at
+    y2 -= y1
+    x2 -= x1
+    float z = get_heading_from_vector_2d {x} x2 {y} y2
+    return z
+end
+```
+
 #### allocateString
 
 ```lua
