@@ -1,4 +1,4 @@
-## Curated list of useful SCM functions for everyday coding. Uses latest CLEO 5.1
+## Curated list of useful SCM functions for everyday coding. Uses latest [CLEO 5.1](https://cleo.li) / [Sanny Builder 4](https://sannybuilder.com/)
 
 # Table of Contents
 
