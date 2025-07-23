@@ -1,11 +1,51 @@
 ## Curated list of useful SCM functions for everyday coding. Uses latest CLEO 5.1
 
+# Table of Contents
+
+## 1. Uncategorized Functions
+- [getCameraAngle](#getcameraangle) - Return camera rotation angle
+- [allocateString / deallocateString](#allocatestring) - Creates and manages heap-allocated strings
+- [loadModel](#loadmodel) - Loads model by id
+- [setCarPlateText](#setcarplatetext) - Changes the text on car's number plate
+- [spawnCar](#spawncar) - Spawns a new car like a cheat and returns its handle
+- [getEntityPos](#getentitypos) - Returns XYZ coords of an entity (CEntity)
+- [isOnMission](#isonmission) - Checks if on mission flag is set
+- [setOnMission](#setonmission) - Sets on mission flag
+
+### Placeholder Functions (TBD)
+- getWeatherForecast(hours: int): int
+- replaceStringInFile(f: string, find: string, replace: string)
+- isPointInsideGarage(x: float, y: float, z: float): logical
+- clearBlipOnCharDeath(char: int)
+- getUserSettingsInt(settingId: int): int
+- setUserSettingsInt(settingId: int, value: int)
+- getUserSettingsFloat(settingId: int): float
+- setUserSettingsFloat(settingId: int, value: float)
+- getDummyCoords(vehicle: Car, dummyId: int): float, float, float
+
+## 2. Math Functions
+- [min](#min) - Returns the smallest of two integers
+- [minf](#minf) - Returns the smallest of two floats
+- [max](#max) - Returns the largest of two integers
+- [maxf](#maxf) - Returns the largest of two floats
+
+## 3. Debug Functions
+- [log](#log) - Adds a new entry in CLEO.log
+- [dumpScriptVars](#dumpscriptvars) - Writes local variables (0@-31@) to CLEO.log
+- [viewScriptVars](#viewscriptvars) - Prints local variables on screen
+- [viewPlayerCoords](#viewplayercoords) - Prints player coordinates
+- [reloadThisScript](#reloadthisscript) - Reload current script from disk
+- [teleportToNearestCar](#teleporttonearestcar) - Teleports player to the nearest car
+
+### Placeholder Debug Functions (TBD)
+- viewEntityCoords3d(entity: int)
+- saveScreenToPng(f: string, left: int, top: int, w: int, h:
 
 ### Uncategorized
 
 #### getCameraAngle
 
-```
+```lua
 /// Return camera rotation angle
 function getCameraAngle(): float
     float x1, y1, z1, x2, y2, z2
