@@ -62,7 +62,7 @@ end
 
 ```lua
 /// Creates a heap-allocated string
-function allocate_string(s: string): int
+function allocateString(s: string): int
     int len = get_text_length {text} s
     len++
     int buf = allocate_memory {size} len
@@ -70,7 +70,7 @@ function allocate_string(s: string): int
     return buf
 end
 
-function deallocate_string(s: string)
+function deallocateString(s: string)
     free_memory {address} s
 end
 ```
