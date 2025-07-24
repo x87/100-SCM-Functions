@@ -1,53 +1,68 @@
-## Curated list of useful SCM functions for everyday coding. Uses latest [CLEO 5.1](https://cleo.li) / [Sanny Builder 4](https://sannybuilder.com/)
+## Curated list of useful SCM functions for everyday coding. 
+Uses latest [CLEO 5.1](https://cleo.li) / [Sanny Builder 4](https://sannybuilder.com/)
+
+Read more about functions in Sanny Builder: https://docs.sannybuilder.com/language/functions
 
 # Table of Contents
 
 ## 1. Uncategorized Functions
-- [getCameraAngle](#getcameraangle) - Return camera rotation angle
-- [allocateString / deallocateString](#allocatestring) - Creates and manages heap-allocated strings
-- [loadModel](#loadmodel) - Loads model by id
-- [setCarPlateText](#setcarplatetext) - Changes the text on car's number plate
-- [spawnCar](#spawncar) - Spawns a new car like a cheat and returns its handle
-- [getEntityPos](#getentitypos) - Returns XYZ coords of an entity (CEntity)
-- [isOnMission](#isonmission) - Checks if on mission flag is set
-- [setOnMission](#setonmission) - Sets on mission flag
 
-### Placeholder Functions (TBD)
-- getWeatherForecast(hours: int): int
-- replaceStringInFile(f: string, find: string, replace: string)
-- isPointInsideGarage(x: float, y: float, z: float): logical
-- clearBlipOnCharDeath(char: int)
-- getUserSettingsInt(settingId: int): int
-- setUserSettingsInt(settingId: int, value: int)
-- getUserSettingsFloat(settingId: int): float
-- setUserSettingsFloat(settingId: int, value: float)
-- getDummyCoords(vehicle: Car, dummyId: int): float, float, float
+- [AllocateString / DeallocateString](#allocatestring) - Creates and manages heap-allocated strings
+- [GetCameraAngle](#getcameraangle) - Return camera rotation angle
+- [GetEntityPos](#getentitypos) - Returns XYZ coords of an entity (CEntity)
+- [GetEntityType](#getentitytype) - Returns entity type: 0-nothing, 1-building, 2-vehicle, 3-ped, 4-object, 5-dummy
+- [IsOnMission](#isonmission) - Checks if on mission flag is set
+- [IsThisEntityAVehicle](#isthisentityavehicle) - Checks if this entity is a vehicle
+- [LoadModel](#loadmodel) - Loads model by id
+- [ReplaceStringInFile](#replacestringinfile) - Replaces the first occurrence of a substring in a file
+- [SetCarPlateText](#setcarplatetext) - Changes the text on car's number plate
+- [SetOnMission](#setonmission) - Sets on mission flag
+- [SpawnCar](#spawncar) - Spawns a new car like a cheat and returns its handle
 
 ## 2. Math Functions
-- [min](#min) - Returns the smallest of two integers
-- [minf](#minf) - Returns the smallest of two floats
-- [max](#max) - Returns the largest of two integers
-- [maxf](#maxf) - Returns the largest of two floats
+- [Min](#min) - Returns the smallest of two integers
+- [MinF](#minf) - Returns the smallest of two floats
+- [Max](#max) - Returns the largest of two integers
+- [MaxF](#maxf) - Returns the largest of two floats
+- [ToRad](#torad) - Converts degrees to radians
+- [ToDeg](#todeg) - Converts radians to degrees
 
 ## 3. Debug Functions
-- [log](#log) - Adds a new entry in CLEO.log
-- [dumpScriptVars](#dumpscriptvars) - Writes local variables (0@-31@) to CLEO.log
-- [viewScriptVars](#viewscriptvars) - Prints local variables on screen
-- [viewPlayerCoords](#viewplayercoords) - Prints player coordinates
-- [reloadThisScript](#reloadthisscript) - Reload current script from disk
-- [teleportToNearestCar](#teleporttonearestcar) - Teleports player to the nearest car
 
-### Placeholder Debug Functions (TBD)
-- viewEntityCoords3d(entity: int)
-- saveScreenToPng(f: string, left: int, top: int, w: int, h:
+- [DumpScriptVars](#dumpscriptvars) - Writes local variables (0@-31@) to CLEO.log
+- [Log](#log) - Adds a new entry in CLEO.log
+- [ReloadThisScript](#reloadthisscript) - Reload current script from disk
+- [TeleportToNearestCar](#teleporttonearestcar) - Teleports player to the nearest car
+- [ViewPlayerCoords](#viewplayercoords) - Prints player coordinates
+- [ViewScriptVars](#viewscriptvars) - Prints local variables on screen
 
 ### Uncategorized
 
-#### getCameraAngle
+
+#### GetEntityType
+```lua
+/// Returns entity type: 0-nothing, 1-building, 2-vehicle, 3-ped, 4-object, 5-dummy
+function GetEntityType(address: int): int
+    int type = read_memory_with_offset {address} address {offset} 0x36 {size} 1
+    type &= 7
+    return type
+end
+```
+
+#### IsThisEntityAVehicle
+```lua
+/// Checks if this entity is a vehicle
+function IsThisEntityAVehicle(address: int): logical
+    int type = GetEntityType(address)
+    return type == 2
+end
+```
+
+#### GetCameraAngle
 
 ```lua
 /// Return camera rotation angle
-function getCameraAngle(): float
+function GetCameraAngle(): float
     float x1, y1, z1, x2, y2, z2
     x1, y1, z1 = get_active_camera_coordinates
     x2, y2, z2 = get_active_camera_point_at
@@ -58,11 +73,11 @@ function getCameraAngle(): float
 end
 ```
 
-#### allocateString
+#### AllocateString
 
 ```lua
 /// Creates a heap-allocated string
-function allocateString(s: string): int
+function AllocateString(s: string): int
     int len = get_text_length {text} s
     len++
     int buf = allocate_memory {size} len
@@ -70,27 +85,27 @@ function allocateString(s: string): int
     return buf
 end
 
-function deallocateString(s: string)
+function DeallocateString(s: string)
     free_memory {address} s
 end
 ```
 
-#### loadModel
+#### LoadModel
 ```lua
 /// Loads model by id
-function loadModel(modelId: int)
+function LoadModel(modelId: int)
     request_model modelId
     while not has_model_loaded {modelId} modelId
         wait 0
     end
 end
 ```
-* getWeatherForecast(hours: int): int - returns weather type coming in {hours}
+* GetWeatherForecast(hours: int): int - returns weather type coming in {hours}
 
-#### setCarPlateText
+#### SetCarPlateText
 ```lua
 /// Changes the text on car's number place
-function setCarPlateText(vehicle: Car, plateText: string)
+function SetCarPlateText(vehicle: Car, plateText: string)
     int pVehicle = Memory.GetVehiclePointer(vehicle)
     int pCustomCarPlate = read_memory_with_offset {address} pVehicle {offset} 0x588 {size} 4
     if is_truthy pCustomCarPlate
@@ -104,14 +119,81 @@ function setCarPlateText(vehicle: Car, plateText: string)
     function RwTextureDestroy<cdecl, 0x7F3820>(texture: int)
 end
 ```
-* replaceStringInFile(f: string, find: string, replace: string) - replaces string {find} in {f} with {replace}
 
-#### spawnCar
+```lua
+/// Replaces the first occurence of {find_string} found in the file at {file_path} with {replace_string} in-place
+export function ReplaceStringInFile(file_path: string, find: string, replace: string)
+    int f
+
+    // open file for reading
+    if f = open_file file_path "rb"
+    then
+
+        int size = get_file_size f
+        int source = allocate_memory size
+
+        if read_block_from_file f size source
+        then
+
+            int p = strstr(source, find_string)
+            if p > 0
+            then
+                // reopen file for writing
+                close_file f
+                f = open_file file_path "wb"
+
+                int pFrom, count
+
+                // copy all before found string
+                pFrom = source
+                count = p - pFrom
+                trace "copy first %d bytes of file %s" count file_path
+                write_block_to_file f count pFrom
+
+                // copy new name
+                pFrom = replace_string
+                count = strlen(replace_string)
+                trace "copy %d bytes of %s" count pFrom
+                write_block_to_file f count pFrom
+
+                // copy all after found string
+                int last = source + size
+                pFrom = strlen(find_string)
+                pFrom += p
+                count = last - pFrom
+                trace "copy last %d bytes of file %s" count file_path
+                write_block_to_file f count pFrom
+
+            else
+                trace "%s not found in %s" find_string file_path
+            end
+        else
+            trace "can't read file %s" file_path
+        end
+
+        close_file f
+        free_memory source
+
+    else
+        trace "file %s not found" file_path
+    end
+    /// Finds the first occurrence of a substring in a string and returns a pointer to it
+    function strstr<cdecl, 0x822650>(str: string, substr: string): string
+    /// Returns str length
+    function strlen<cdecl, 0x718690>(str: string): int
+end
+```
+
+#### SpawnCar
 ```lua
 /// Spawns a new car like a cheat and returns its handle
-function spawnCar(modelId: int): int
+function SpawnCar(modelId: int): int
 
     int pCheatCar = CCheat_VehicleCheat(modelId)
+    // mark car as owned by player
+    int flags = read_memory_with_offset {address} pCheatCar {offset} 0x428 {size} 4
+    set_bit flags 17 // bHasBeenOwnedByPlayer=true
+    write_memory_with_offset {address} pCheatCar {offset} 0x428 {size} 4 {value} flags
     Car hCheatCar = get_vehicle_ref {address} pCheatCar
     return hCheatCar
 
@@ -119,12 +201,12 @@ function spawnCar(modelId: int): int
     function CCheat_VehicleCheat<cdecl, 0x43A0B0>(vehicleModelId: int): int
 end
 ```
-* isPointInsideGarage(x: float, y: float, z: float): logical - return true if point is located inside a garage
+* IsPointInsideGarage(x: float, y: float, z: float): logical - return true if point is located inside a garage
 
-#### getEntityPos
+#### GetEntityPos
 ```lua
 // Returns XYZ coords of an entity (CEntity)
-function getEntityPos(address: int): float, float, float
+function GetEntityPos(address: int): float, float, float
     int vec = read_memory_with_offset {address} address {offset} 0x14 {size} 4
     if vec > 0
     then
@@ -140,12 +222,12 @@ function getEntityPos(address: int): float, float, float
     return x, y, z
 end
 ```
-* clearBlipOnCharDeath(char: int) - makes the blip to disappear when {char} dies
+* ClearBlipOnCharDeath(char: int) - makes the blip to disappear when {char} dies
 
-#### isOnMission
+#### IsOnMission
 ```lua
 /// Checks if on mission flag is set
-function isOnmission(): logical
+function IsOnMission(): logical
     int address = -2221
     int offset = &0(address,1i) / 4
     int flag = &0(offset,1i)
@@ -153,27 +235,27 @@ function isOnmission(): logical
 end
 ```
 
-#### setOnMission
+#### SetOnMission
 ```lua
 /// Sets on mission flag
-function setOnMission(flag: int)
+function SetOnMission(flag: int)
     int address = -2221
     int offset = &0(address,1i) / 4
     &0(offset,1i) = flag
 end
 ```
-* getUserSettingsInt(settingId: int): int - returns an integer value of a particular configuration in the main menu. list of settings TBD
-* setUserSettingsInt(settingId: int, value: int) - sets new value of a particular configuration in the main menu. list of settings TBD
-* getUserSettingsFloat(settingId: int): float - returns an integer value of a particular configuration in the main menu. list of settings TBD
-* setUserSettingsFloat(settingId: int, value: float) - sets new value of a particular configuration in the main menu. list of settings TBD
-* getDummyCoords(vehicle: Car, dummyId: int): float, float, float - returns XYZ of a particular dummy of the car
+* GetUserSettingsInt(settingId: int): int - returns an integer value of a particular configuration in the main menu. list of settings TBD
+* SetUserSettingsInt(settingId: int, value: int) - sets new value of a particular configuration in the main menu. list of settings TBD
+* GetUserSettingsFloat(settingId: int): float - returns an integer value of a particular configuration in the main menu. list of settings TBD
+* SetUserSettingsFloat(settingId: int, value: float) - sets new value of a particular configuration in the main menu. list of settings TBD
+* GetDummyCoords(vehicle: Car, dummyId: int): float, float, float - returns XYZ of a particular dummy of the car
 
 ### Math
 
-#### min
+#### Min
 ```lua
 /// Returns the smallest of {a} and {b}
-function min(a: int, b: int): int
+function Min(a: int, b: int): int
     if a > b 
     then
         return b
@@ -182,10 +264,10 @@ function min(a: int, b: int): int
     end
 end
 ```
-#### minf
+#### MinF
 ```lua
 /// Returns the smallest of {a} and {b}
-function minf(a: float, b: float): float
+function MinF(a: float, b: float): float
     if a > b 
     then
         return b
@@ -194,10 +276,10 @@ function minf(a: float, b: float): float
     end
 end
 ```
-#### max
+#### Max
 ```lua
 /// Returns the largest of {a} and {b}
-function max(a: int, b: int): int
+function Max(a: int, b: int): int
     if a < b 
     then
         return b
@@ -206,10 +288,10 @@ function max(a: int, b: int): int
     end
 end
 ```
-#### maxf
+#### MaxF
 ```lua
 /// Returns the largest of {a} and {b}
-function maxf(a: float, b: float): int
+function MaxF(a: float, b: float): float
     if a < b 
     then
         return b
@@ -219,40 +301,60 @@ function maxf(a: float, b: float): int
 end
 ```
 
+
+#### ToRad
+```lua
+/// Converts degrees to radians
+function ToRad(degrees: float): float
+    float res = degrees * 0.0175 // PI / 180
+    return res
+end
+```
+
+#### ToDeg
+```lua
+/// Converts radians to degrees
+function ToDeg(radians: float): float
+    float res = radians * 57.2958 // 180 / PI
+    return res
+end
+```
+
+
 ### Debug
-#### log
+#### Log
 ```lua
 /// Adds a new entry in CLEO.log. Requires `LegacyDebugOpcodes = 1` in cleo\cleo_plugins\SA.DebugUtils.ini 
-function log(s: string)
+function Log(s: string)
     debug_on
     write_debug s
     debug_off
 end
 ```
-#### dumpScriptVars
+#### DumpScriptVars
 ```lua
 /// writes a list of local variables (0@-31@) to CLEO.log
-:dumpScriptVars
+:DumpScriptVars
     int buf = allocate_memory 512
     string_format {buffer} buf {format} "%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d" {args} 0@ 1@ 2@ 3@ 4@ 5@ 6@ 7@ 8@ 9@ 10@ 11@ 12@ 13@ 14@ 15@ 16@ 17@ 18@ 19@ 20@ 21@ 22@ 23@ 24@ 25@ 26@ 27@ 28@ 29@ 30@ 31@
-    log(buf)
+    Log(buf)
     free_memory {address} buf
 return
 ```
-#### viewScriptVars
+#### ViewScriptVars
 ```
 /// Prints local variables on screen
-:viewScriptVars
+:ViewScriptVars
     use_text_commands {state} true
     display_text_formatted {offsetLeft} 50.0 {offsetTop} 100.0 {format} "%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d" {args} 0@ 1@ 2@ 3@ 4@ 5@ 6@ 7@ 8@ 9@ 10@ 11@ 12@ 13@ 14@ 15@ 16@ 17@ 18@ 19@ 20@ 21@ 22@ 23@ 24@ 25@ 26@ 27@ 28@ 29@ 30@ 31@
 return
 ```
-* saveScreenToPng(f: string, left: int, top: int, w: int, h: int) - saves portion of screen to a png file
+* SaveScreenToPng(f: string, left: int, top: int, w: int, h: int) - saves portion of screen to a png file
 
-#### viewPlayerCoords
+#### ViewPlayerCoords
 ```lua
 /// Prints player coordinates
-function viewPlayerCoords()
+function ViewPlayerCoords()
     float x, y, z
 
     use_text_commands {state} true
@@ -263,12 +365,12 @@ function viewPlayerCoords()
     display_text_formatted {offsetLeft} 320.0 {offsetTop} 20.0 {format} "%.2f %.2f %.2f" {args} x y z
 end
 ```
-* viewEntityCoords3d(entity: int) - prints entity (CVehicle, CPed, CObject) coordinates above it
+* ViewEntityCoords3d(entity: int) - prints entity (CVehicle, CPed, CObject) coordinates above it
 
-#### reloadThisScript
+#### ReloadThisScript
 ```lua
 /// Reload current script from disk
-function reloadThisScript()
+function ReloadThisScript()
     int buf = allocate_memory 256
     buf = get_script_filename -1 true
     stream_custom_script buf
@@ -277,10 +379,10 @@ function reloadThisScript()
 end
 ```
 
-#### teleportToNearestCar
+#### TeleportToNearestCar
 ```lua
 /// Teleports player to the nearest car
-function teleportToNearestCar()
+function TeleportToNearestCar()
     float x, y, z
     float radius = 5.0
     x, y, z = get_char_coordinates $scplayer
@@ -296,5 +398,17 @@ function teleportToNearestCar()
     end
     
     warp_char_into_car $scplayer {vehicle} handle
+end
+```
+
+#### TeleportToMarker
+```lua
+/// Teleports player to the red target marker
+function TeleportToMarker()
+    float x, y, z
+    if x, y, z = get_target_blip_coords
+    then
+        set_char_coordinates $scplayer {x} x {y} y {z} z
+    end
 end
 ```
