@@ -9,6 +9,7 @@ Read more about functions in Sanny Builder: https://docs.sannybuilder.com/langua
 
 - [AllocateString / DeallocateString](#allocatestring) - Creates and manages heap-allocated strings
 - [GetCameraAngle](#getcameraangle) - Return camera rotation angle
+- [SetFOV](#setfov) - Sets the field of view (FOV) for the camera
 - [GetEntityPos](#getentitypos) - Returns XYZ coords of an entity (CEntity)
 - [GetEntityType](#getentitytype) - Returns entity type: 0-nothing, 1-building, 2-vehicle, 3-ped, 4-object, 5-dummy
 - [IsOnMission](#isonmission) - Checks if on mission flag is set
@@ -70,6 +71,14 @@ function GetCameraAngle(): float
     x2 -= x1
     float z = get_heading_from_vector_2d {x} x2 {y} y2
     return z
+end
+```
+
+#### SetFOV
+```lua
+/// Sets the field of view (FOV) for the camera
+export function SetFOV(fov: float)
+    write_memory_with_offset {address} 0xB6F028 {offset} 0xCB8 {size} 4 {value} fov
 end
 ```
 
