@@ -120,6 +120,7 @@ function SetCarPlateText(vehicle: Car, plateText: string)
 end
 ```
 
+#### ReplaceStringInFile
 ```lua
 /// Replaces the first occurence of {find_string} found in the file at {file_path} with {replace_string} in-place
 export function ReplaceStringInFile(file_path: string, find: string, replace: string)
