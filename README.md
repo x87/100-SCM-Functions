@@ -1,9 +1,8 @@
-## Curated list of useful SCM functions for everyday coding. 
+# Curated List of Useful SCM functions for Everyday Coding. 
 Uses latest [CLEO 5.1](https://cleo.li) / [Sanny Builder 4](https://sannybuilder.com/)
 
 Read more about functions in Sanny Builder: https://docs.sannybuilder.com/language/functions
 
-# Table of Contents
 
 ## 1. Uncategorized Functions
 
@@ -19,6 +18,13 @@ Read more about functions in Sanny Builder: https://docs.sannybuilder.com/langua
 - [SetCarPlateText](#setcarplatetext) - Changes the text on car's number plate
 - [SetOnMission](#setonmission) - Sets on mission flag
 - [SpawnCar](#spawncar) - Spawns a new car like a cheat and returns its handle
+- [ClearBlipOnCharDeath](#clearbliponchardeath) - Makes the blip to disappear when character dies
+- [GetCLEOSDK](#getcleosdk) - Returns a pointer to a function exported from CLEO.asi
+- [GetCLEOVersion](#getcleoversion) - Returns the version of the CLEO library
+- [GetCarFlag](#getcarflag) - Returns a car flag
+- [SetCarFlag](#setcarflag) - Sets a car flag
+- [GetTimeScale](#gettimescale) - Returns current gameplay speed multiplier (set with set_time_scale)
+- [IsMissionCar](#ismissioncar) - Checks if a car is a mission car
 
 ## 2. Math Functions
 - [Min](#min) - Returns the smallest of two integers
@@ -77,7 +83,7 @@ end
 #### SetFOV
 ```lua
 /// Sets the field of view (FOV) for the camera
-export function SetFOV(fov: float)
+function SetFOV(fov: float)
     write_memory_with_offset {address} 0xB6F028 {offset} 0xCB8 {size} 4 {value} fov
 end
 ```
@@ -131,12 +137,12 @@ end
 
 #### ReplaceStringInFile
 ```lua
-/// Replaces the first occurence of {find_string} found in the file at {file_path} with {replace_string} in-place
-export function ReplaceStringInFile(file_path: string, find: string, replace: string)
+/// Replaces the first occurence of {find_string} found in the file at {filePath} with {replace_string} in-place
+function ReplaceStringInFile(filePath: string, find: string, replace: string)
     int f
 
     // open file for reading
-    if f = open_file file_path "rb"
+    if f = open_file filePath "rb"
     then
 
         int size = get_file_size f
@@ -150,14 +156,14 @@ export function ReplaceStringInFile(file_path: string, find: string, replace: st
             then
                 // reopen file for writing
                 close_file f
-                f = open_file file_path "wb"
+                f = open_file filePath "wb"
 
                 int pFrom, count
 
                 // copy all before found string
                 pFrom = source
                 count = p - pFrom
-                trace "copy first %d bytes of file %s" count file_path
+                trace "copy first %d bytes of file %s" count filePath
                 write_block_to_file f count pFrom
 
                 // copy new name
@@ -171,21 +177,21 @@ export function ReplaceStringInFile(file_path: string, find: string, replace: st
                 pFrom = strlen(find_string)
                 pFrom += p
                 count = last - pFrom
-                trace "copy last %d bytes of file %s" count file_path
+                trace "copy last %d bytes of file %s" count filePath
                 write_block_to_file f count pFrom
 
             else
-                trace "%s not found in %s" find_string file_path
+                trace "%s not found in %s" find_string filePath
             end
         else
-            trace "can't read file %s" file_path
+            trace "can't read file %s" filePath
         end
 
         close_file f
         free_memory source
 
     else
-        trace "file %s not found" file_path
+        trace "file %s not found" filePath
     end
     /// Finds the first occurrence of a substring in a string and returns a pointer to it
     function strstr<cdecl, 0x822650>(str: string, substr: string): string
@@ -254,6 +260,42 @@ function SetOnMission(flag: int)
     &0(offset,1i) = flag
 end
 ```
+
+#### GetCLEOSDK
+```lua
+/// Returns a pointer to a function exported from CLEO.asi
+function GetCLEOSDK(name: string): optional int
+    if int cleo = load_dynamic_library {fileName} "CLEO.asi"
+    then
+        if int func = get_dynamic_library_procedure {procName} name cleo
+        then
+            free_dynamic_library cleo
+            return func
+        else
+            free_dynamic_library cleo
+            return
+        end
+    end
+end
+```
+
+#### GetCLEOVersion
+```lua
+/// Returns CLEO Library version, e.g. 0x50100000 for 5.1.0
+function GetCLEOVersion(): optional int
+    if GetVersion fn = GetCLEOSDK("_CLEO_GetVersion@0")
+    then
+        int version = fn()
+        return version
+    end
+    return
+    
+    function GetVersion<stdcall>(): int
+end
+```
+
+
+
 * GetUserSettingsInt(settingId: int): int - returns an integer value of a particular configuration in the main menu. list of settings TBD
 * SetUserSettingsInt(settingId: int, value: int) - sets new value of a particular configuration in the main menu. list of settings TBD
 * GetUserSettingsFloat(settingId: int): float - returns an integer value of a particular configuration in the main menu. list of settings TBD
@@ -422,3 +464,75 @@ function TeleportToMarker()
     end
 end
 ```
+
+#### ClearBlipOnCharDeath
+```lua
+/// Clears the blip on character death
+function ClearBlipOnCharDeath(handle: Char)
+    int address = get_ped_pointer {char} handle
+    int flags = read_memory_with_offset address {offset} 0x474 {size} 4
+    set_bit {var_number} flags {bitIndex} 13
+    write_memory_with_offset address {offset} 0x474 {size} 4 {value} flags
+end
+```
+
+#### GetTimeScale
+```lua
+/// Returns current gameplay speed multiplier (set with set_time_scale)
+function GetTimeScale(): float
+    float speed = read_memory 0x00B7CB64 {size} 4 {vp} false
+    return speed
+end
+
+```lua
+function IsMissionCar(handle: Car): logical
+    int ptr = get_vehicle_pointer {handle} handle
+    int createdBy = read_memory_with_offset {address} ptr {offset} 0x4A4 {size} 1 // CVehicle::m_nCreatedBy
+    return createdBy == 2 // MISSION_VEHICLE
+end
+```
+
+#### GetCarFlag
+```lua
+function GetCarFlag(handle: Car, flagIdx: int): logical
+    int ptr = get_vehicle_pointer {handle} handle
+    int bitIdx = flagIdx % 8
+
+    int offset = 0x428 // CVehicle::m_nVehicleFlags
+    flagIdx /= 8
+    offset += flagIdx
+    ptr += offset
+
+    int flags = read_memory {address} ptr {size} 1 {vp} false
+
+    is_local_var_bit_set_const {var_number} flags {bitIndex} bitIdx
+end
+```
+
+#### SetCarFlag
+```lua
+/// Sets a car flag
+function SetCarFlag(handle: Car, flagIdx: int, state: int)
+    int ptr = get_vehicle_pointer {handle} handle
+    int bitIdx = flagIdx % 8
+
+    int offset = 0x428 // CVehicle::m_nVehicleFlags
+    flagIdx /= 8
+    offset += flagIdx
+    ptr += offset
+
+    int flags = read_memory {address} ptr {size} 1 {vp} false
+    if
+        state <> false
+    then
+        set_local_var_bit_lvar {var_number} flags {n} bitIdx
+    else
+        clear_local_var_bit_lvar {var_number} flags {n} bitIdx
+    end
+    write_memory {address} ptr {size} 1 {value} flags {vp} false
+end
+```
+
+## Credits
+
+Seemann, Vital, Miran, OrionSR.
