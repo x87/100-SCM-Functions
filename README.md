@@ -505,7 +505,7 @@ function GetCarFlag(handle: Car, flagIdx: int): logical
 
     int flags = read_memory {address} ptr {size} 1 {vp} false
 
-    is_local_var_bit_set_const {var_number} flags {bitIndex} bitIdx
+    is_bit_set {var_number} flags {bitIndex} bitIdx
 end
 ```
 
@@ -525,9 +525,9 @@ function SetCarFlag(handle: Car, flagIdx: int, state: int)
     if
         state <> false
     then
-        set_local_var_bit_lvar {var_number} flags {n} bitIdx
+        set_bit {var_number} flags {n} bitIdx
     else
-        clear_local_var_bit_lvar {var_number} flags {n} bitIdx
+        clear_bit {var_number} flags {n} bitIdx
     end
     write_memory {address} ptr {size} 1 {value} flags {vp} false
 end
