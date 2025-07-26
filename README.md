@@ -483,7 +483,9 @@ function GetTimeScale(): float
     float speed = read_memory 0x00B7CB64 {size} 4 {vp} false
     return speed
 end
+```
 
+#### IsMissionCar
 ```lua
 function IsMissionCar(handle: Car): logical
     int ptr = get_vehicle_pointer {handle} handle
@@ -493,7 +495,73 @@ end
 ```
 
 #### GetCarFlag
+
 ```lua
+const VEHICLEFLAG_ISLAWENFORCER = 0               // Is this guy chasing the player at the moment
+const VEHICLEFLAG_ISAMBULANCEONDUTY = 1           // Ambulance trying to get to an accident
+const VEHICLEFLAG_ISFIRETRUCKONDUTY = 2           // Firetruck trying to get to a fire
+const VEHICLEFLAG_ISLOCKED = 3                    // Is this guy locked by the script (cannot be removed)
+const VEHICLEFLAG_ENGINEON = 4                    // For sound purposes. Parked cars have their engines switched off (so do destroyed cars)
+const VEHICLEFLAG_ISHANDBRAKEON = 5               // How's the handbrake doing ?
+const VEHICLEFLAG_LIGHTSON = 6                    // Are the lights switched on ?
+const VEHICLEFLAG_FREEBIES = 7                    // Any freebies left in this vehicle ?
+const VEHICLEFLAG_ISVAN = 8                       // Is this vehicle a van (doors at back of vehicle)
+const VEHICLEFLAG_ISBUS = 9                       // Is this vehicle a bus
+const VEHICLEFLAG_ISBIG = 10                       // Is this vehicle big
+const VEHICLEFLAG_LOWVEHICLE = 11                  // Need this for sporty type cars to use low getting-in/out anims
+const VEHICLEFLAG_COMEDYCONTROLS = 12              // Will make the car hard to control (hopefully in a funny way)
+const VEHICLEFLAG_WARNEDPEDS = 13                  // Has scan and warn peds of danger been processed?
+const VEHICLEFLAG_CRANEMESSAGEDONE = 14            // A crane message has been printed for this car already
+const VEHICLEFLAG_TAKELESSDAMAGE = 15              // This vehicle is stronger (takes about 1/4 of damage)
+const VEHICLEFLAG_ISDAMAGED = 16                   // This vehicle has been damaged and is displaying all its components
+const VEHICLEFLAG_HASBEENOWNEDBYPLAYER = 17        // To work out whether stealing it is a crime
+const VEHICLEFLAG_FADEOUT = 18                     // Fade vehicle out
+const VEHICLEFLAG_ISBEINGCARJACKED = 19            //
+const VEHICLEFLAG_CREATEROADBLOCKPEDS = 20         // If this vehicle gets close enough we will create peds (coppers or gang members) round it
+const VEHICLEFLAG_CANBEDAMAGED = 21                // Set to FALSE during cut scenes to avoid explosions
+const VEHICLEFLAG_OCCUPANTSHAVEBEENGENERATED = 22  // Is true if the occupants have already been generated. (Shouldn't happen again)
+const VEHICLEFLAG_GUNSWITCHEDOFF = 23              // Level designers can use this to switch off guns on boats
+const VEHICLEFLAG_VEHICLECOLPROCESSED = 24         // Has ProcessEntityCollision been processed for this car?
+const VEHICLEFLAG_ISCARPARKVEHICLE = 25            // Car has been created using the special CAR_PARK script command
+const VEHICLEFLAG_HASALREADYBEENRECORDED = 26      // Used for replays
+const VEHICLEFLAG_PARTOFCONVOY = 27
+const VEHICLEFLAG_HELIMINIMUMTILT = 28             // This heli should have almost no tilt really
+const VEHICLEFLAG_AUDIOCHANGINGGEAR = 29           // sounds like vehicle is changing gear
+const VEHICLEFLAG_ISDROWNING = 30                  // is vehicle occupants taking damage in water (i.e. vehicle is dead in water)
+const VEHICLEFLAG_TYRESDONTBURST = 31              // If this is set the tyres are invincible
+const VEHICLEFLAG_CREATEDASPOLICEVEHICLE = 32      // True if this guy was created as a police vehicle (enforcer, policecar, miamivice car etc)
+const VEHICLEFLAG_RESTINGONPHYSICAL = 33           // Don't go static cause car is sitting on a physical object that might get removed
+const VEHICLEFLAG_PARKING = 34
+const VEHICLEFLAG_CANPARK = 35
+const VEHICLEFLAG_FIREGUN = 36                     // Does the ai of this vehicle want to fire it's gun?
+const VEHICLEFLAG_DRIVERLASTFRAME = 37             // Was there a driver present last frame ?
+const VEHICLEFLAG_NEVERUSESMALLERREMOVALRANGE = 38 // Some vehicles (like planes) we don't want to remove just behind the camera.
+const VEHICLEFLAG_ISRCVEHICLE = 39                 // Is this a remote controlled (small) vehicle. True whether the player or AI controls it.
+const VEHICLEFLAG_ALWAYSSKIDMARKS = 40             // This vehicle leaves skidmarks regardless of the wheels' states.
+const VEHICLEFLAG_ENGINEBROKEN = 41                // Engine doesn't work. Player can get in but the vehicle won't drive
+const VEHICLEFLAG_VEHICLECANBETARGETTED = 42       // The ped driving this vehicle can be targeted, (for Torenos plane mission)
+const VEHICLEFLAG_PARTOFATTACKWAVE = 43            // This car is used in an attack during a gang war
+const VEHICLEFLAG_WINCHCANPICKMEUP = 44            // This car cannot be picked up by any ropes.
+const VEHICLEFLAG_IMPOUNDED = 45                   // Has this vehicle been in a police impounding garage
+const VEHICLEFLAG_VEHICLECANBETARGETTEDBYHS = 46   // Heat seeking missiles will not target this vehicle.
+const VEHICLEFLAG_SIRENORALARM = 47                // Set to TRUE if siren or alarm active, else FALSE
+const VEHICLEFLAG_HASGANGLEANINGON = 48
+const VEHICLEFLAG_GANGMEMBERSFORROADBLOCK = 49     // Will generate gang members if NumPedsForRoadBlock > 0
+const VEHICLEFLAG_DOESPROVIDECOVER = 50            // If this is false this particular vehicle can not be used to take cover behind.
+const VEHICLEFLAG_MADDRIVER = 51                   // This vehicle is driving like a lunatic
+const VEHICLEFLAG_UPGRADEDSTEREO = 52              // This vehicle has an upgraded stereo
+const VEHICLEFLAG_CONSIDEREDBYPLAYER = 53          // This vehicle is considered by the player to enter
+const VEHICLEFLAG_PETROLTANKISWEAKPOINT = 54       // If false shooting the petrol tank will NOT Blow up the car
+const VEHICLEFLAG_DISABLEPARTICLES = 55            // Disable particles from this car. Used in garage.
+const VEHICLEFLAG_HASBEENRESPRAYED = 56            // Has been resprayed in a respray garage. Reset after it has been checked.
+const VEHICLEFLAG_USECARCHEATS = 57                // If this is true will set the car cheat stuff up in ProcessControl()
+const VEHICLEFLAG_DONTSETCOLOURWHENREMAPPING = 58  // If the texture gets remapped we don't want to change the colour with it.
+const VEHICLEFLAG_USEDFORREPLAY = 59               // This car is controlled by replay and should be removed when replay is done.
+```
+
+```lua
+/// Returns a car flag
+/// flagIdx is one of the VEHICLEFLAG_* constants
 function GetCarFlag(handle: Car, flagIdx: int): logical
     int ptr = get_vehicle_pointer {handle} handle
     int bitIdx = flagIdx % 8
@@ -512,6 +580,7 @@ end
 #### SetCarFlag
 ```lua
 /// Sets a car flag
+/// flagIdx is one of the VEHICLEFLAG_* constants
 function SetCarFlag(handle: Car, flagIdx: int, state: int)
     int ptr = get_vehicle_pointer {handle} handle
     int bitIdx = flagIdx % 8
