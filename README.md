@@ -3,7 +3,7 @@ Uses latest [CLEO 5.1](https://cleo.li) / [Sanny Builder 4](https://sannybuilder
 
 Read more about functions in Sanny Builder: https://docs.sannybuilder.com/language/functions
 
-## 1. Uncategorized Functions
+## Uncategorized Functions
 
 - [AllocateString / DeallocateString](#allocatestring) - Creates and manages heap-allocated strings
 - [GetCameraAngle](#getcameraangle) - Return camera rotation angle
@@ -19,7 +19,7 @@ Read more about functions in Sanny Builder: https://docs.sannybuilder.com/langua
 - [GetCLEOVersion](#getcleoversion) - Returns the version of the CLEO library
 - [GetTimeScale](#gettimescale) - Returns current gameplay speed multiplier (set with set_time_scale)
 
-## Vehicles Functions
+## Vehicle Functions
 
 - [IsThisEntityAVehicle](#isthisentityavehicle) - Checks if this entity is a vehicle
 - [SpawnCar](#spawncar) - Spawns a new car like a cheat and returns its handle
@@ -32,7 +32,7 @@ Read more about functions in Sanny Builder: https://docs.sannybuilder.com/langua
 - [IsCarWindowOpen](#iscarwindowopen) - Checks if car window (0-3) is open
 - [GetCarDoorNodeId](#getcardoornodeid) - Returns car node id for a door. (left/right, front/rear) (0-LF,1-RF,2-LR,3-RR)
 
-## 2. Math Functions
+## Math Functions
 
 - [Min](#min) - Returns the smallest of two integers
 - [MinF](#minf) - Returns the smallest of two floats
@@ -41,7 +41,7 @@ Read more about functions in Sanny Builder: https://docs.sannybuilder.com/langua
 - [ToRad](#torad) - Converts degrees to radians
 - [ToDeg](#todeg) - Converts radians to degrees
 
-## 3. Debug Functions
+## Debug Functions
 
 - [DumpScriptVars](#dumpscriptvars) - Writes local variables (0@-31@) to CLEO.log
 - [Log](#log) - Adds a new entry in CLEO.log
