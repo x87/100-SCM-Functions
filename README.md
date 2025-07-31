@@ -1,8 +1,7 @@
-# Curated List of Useful SCM Functions for Everyday Coding. 
+# Curated List of Useful SCM Functions for Everyday Coding.
 Uses latest [CLEO 5.1](https://cleo.li) / [Sanny Builder 4](https://sannybuilder.com/)
 
 Read more about functions in Sanny Builder: https://docs.sannybuilder.com/language/functions
-
 
 ## 1. Uncategorized Functions
 
@@ -12,21 +11,29 @@ Read more about functions in Sanny Builder: https://docs.sannybuilder.com/langua
 - [GetEntityPos](#getentitypos) - Returns XYZ coords of an entity (CEntity)
 - [GetEntityType](#getentitytype) - Returns entity type: 0-nothing, 1-building, 2-vehicle, 3-ped, 4-object, 5-dummy
 - [IsOnMission](#isonmission) - Checks if on mission flag is set
-- [IsThisEntityAVehicle](#isthisentityavehicle) - Checks if this entity is a vehicle
 - [LoadModel](#loadmodel) - Loads model by id
 - [ReplaceStringInFile](#replacestringinfile) - Replaces the first occurrence of a substring in a file
-- [SetCarPlateText](#setcarplatetext) - Changes the text on car's number plate
 - [SetOnMission](#setonmission) - Sets on mission flag
-- [SpawnCar](#spawncar) - Spawns a new car like a cheat and returns its handle
 - [ClearBlipOnCharDeath](#clearbliponchardeath) - Makes the blip to disappear when character dies
 - [GetCLEOSDK](#getcleosdk) - Returns a pointer to a function exported from CLEO.asi
 - [GetCLEOVersion](#getcleoversion) - Returns the version of the CLEO library
+- [GetTimeScale](#gettimescale) - Returns current gameplay speed multiplier (set with set_time_scale)
+
+## Vehicles Functions
+
+- [IsThisEntityAVehicle](#isthisentityavehicle) - Checks if this entity is a vehicle
+- [SpawnCar](#spawncar) - Spawns a new car like a cheat and returns its handle
+- [SetCarPlateText](#setcarplatetext) - Changes the text on car's number plate
 - [GetCarFlag](#getcarflag) - Returns a car flag
 - [SetCarFlag](#setcarflag) - Sets a car flag
-- [GetTimeScale](#gettimescale) - Returns current gameplay speed multiplier (set with set_time_scale)
 - [IsMissionCar](#ismissioncar) - Checks if a car is a mission car
+- [OpenCarWindow](#opencarwindow) - Opens a car window (0-3)
+- [CloseCarWindow](#closecarwindow) - Closes a car window (0-3)
+- [IsCarWindowOpen](#iscarwindowopen) - Checks if car window (0-3) is open
+- [GetCarDoorNodeId](#getcardoornodeid) - Returns car node id for a door. (left/right, front/rear) (0-LF,1-RF,2-LR,3-RR)
 
 ## 2. Math Functions
+
 - [Min](#min) - Returns the smallest of two integers
 - [MinF](#minf) - Returns the smallest of two floats
 - [Max](#max) - Returns the largest of two integers
@@ -40,28 +47,20 @@ Read more about functions in Sanny Builder: https://docs.sannybuilder.com/langua
 - [Log](#log) - Adds a new entry in CLEO.log
 - [ReloadThisScript](#reloadthisscript) - Reload current script from disk
 - [TeleportToNearestCar](#teleporttonearestcar) - Teleports player to the nearest car
+- [TeleportToMarker](#teleporttomarker) - Teleports player to the red target marker
 - [ViewPlayerCoords](#viewplayercoords) - Prints player coordinates
 - [ViewScriptVars](#viewscriptvars) - Prints local variables on screen
 
 ### Uncategorized
 
-
 #### GetEntityType
+
 ```lua
 /// Returns entity type: 0-nothing, 1-building, 2-vehicle, 3-ped, 4-object, 5-dummy
 function GetEntityType(address: int): int
     int type = read_memory_with_offset {address} address {offset} 0x36 {size} 1
     type &= 7
     return type
-end
-```
-
-#### IsThisEntityAVehicle
-```lua
-/// Checks if this entity is a vehicle
-function IsThisEntityAVehicle(address: int): logical
-    int type = GetEntityType(address)
-    return type == 2
 end
 ```
 
@@ -81,6 +80,7 @@ end
 ```
 
 #### SetFOV
+
 ```lua
 /// Sets the field of view (FOV) for the camera
 function SetFOV(fov: float)
@@ -106,6 +106,7 @@ end
 ```
 
 #### LoadModel
+
 ```lua
 /// Loads model by id
 function LoadModel(modelId: int)
@@ -115,27 +116,11 @@ function LoadModel(modelId: int)
     end
 end
 ```
-* GetWeatherForecast(hours: int): int - returns weather type coming in {hours}
 
-#### SetCarPlateText
-```lua
-/// Changes the text on car's number place
-function SetCarPlateText(vehicle: Car, plateText: string)
-    int pVehicle = Memory.GetVehiclePointer(vehicle)
-    int pCustomCarPlate = read_memory_with_offset {address} pVehicle {offset} 0x588 {size} 4
-    if is_truthy pCustomCarPlate
-    then
-        RwTextureDestroy(pCustomCarPlate)
-    end
-    int plateTexture = CCustomCarPlateMgr_CreatePlateTexture(plateText, -1)
-    write_memory_with_offset {address} pVehicle {offset} 0x588 {size} 4 {value} plateTexture
-
-    function CCustomCarPlateMgr_CreatePlateTexture<cdecl, 0x6FDEA0>(text: string, plateType: int): int
-    function RwTextureDestroy<cdecl, 0x7F3820>(texture: int)
-end
-```
+- GetWeatherForecast(hours: int): int - returns weather type coming in {hours}
 
 #### ReplaceStringInFile
+
 ```lua
 /// Replaces the first occurence of {find_string} found in the file at {filePath} with {replace_string} in-place
 function ReplaceStringInFile(filePath: string, find: string, replace: string)
@@ -200,26 +185,10 @@ function ReplaceStringInFile(filePath: string, find: string, replace: string)
 end
 ```
 
-#### SpawnCar
-```lua
-/// Spawns a new car like a cheat and returns its handle
-function SpawnCar(modelId: int): int
-
-    int pCheatCar = CCheat_VehicleCheat(modelId)
-    // mark car as owned by player
-    int flags = read_memory_with_offset {address} pCheatCar {offset} 0x428 {size} 4
-    set_bit flags 17 // bHasBeenOwnedByPlayer=true
-    write_memory_with_offset {address} pCheatCar {offset} 0x428 {size} 4 {value} flags
-    Car hCheatCar = get_vehicle_ref {address} pCheatCar
-    return hCheatCar
-
-    /// Spawns a vehicle of this model in front of the player
-    function CCheat_VehicleCheat<cdecl, 0x43A0B0>(vehicleModelId: int): int
-end
-```
-* IsPointInsideGarage(x: float, y: float, z: float): logical - return true if point is located inside a garage
+- IsPointInsideGarage(x: float, y: float, z: float): logical - return true if point is located inside a garage
 
 #### GetEntityPos
+
 ```lua
 // Returns XYZ coords of an entity (CEntity)
 function GetEntityPos(address: int): float, float, float
@@ -230,17 +199,19 @@ function GetEntityPos(address: int): float, float, float
     else
         vec = address + 4 // entity->simpleCoors->pos
     end
-    
-    float x, y, z 
+
+    float x, y, z
     x = read_memory_with_offset {address} vec {offset} 0x0 {size} 4
     y = read_memory_with_offset {address} vec {offset} 0x4 {size} 4
     z = read_memory_with_offset {address} vec {offset} 0x8 {size} 4
     return x, y, z
 end
 ```
-* ClearBlipOnCharDeath(char: int) - makes the blip to disappear when {char} dies
+
+- ClearBlipOnCharDeath(char: int) - makes the blip to disappear when {char} dies
 
 #### IsOnMission
+
 ```lua
 /// Checks if on mission flag is set
 function IsOnMission(): logical
@@ -252,6 +223,7 @@ end
 ```
 
 #### SetOnMission
+
 ```lua
 /// Sets on mission flag
 function SetOnMission(flag: int)
@@ -262,6 +234,7 @@ end
 ```
 
 #### GetCLEOSDK
+
 ```lua
 /// Returns a pointer to a function exported from CLEO.asi
 function GetCLEOSDK(name: string): optional int
@@ -280,6 +253,7 @@ end
 ```
 
 #### GetCLEOVersion
+
 ```lua
 /// Returns CLEO Library version, e.g. 0x50100000 for 5.1.0
 function GetCLEOVersion(): optional int
@@ -289,203 +263,63 @@ function GetCLEOVersion(): optional int
         return version
     end
     return
-    
+
     function GetVersion<stdcall>(): int
 end
 ```
 
+### Vehicles
 
+#### IsThisEntityAVehicle
 
-* GetUserSettingsInt(settingId: int): int - returns an integer value of a particular configuration in the main menu. list of settings TBD
-* SetUserSettingsInt(settingId: int, value: int) - sets new value of a particular configuration in the main menu. list of settings TBD
-* GetUserSettingsFloat(settingId: int): float - returns an integer value of a particular configuration in the main menu. list of settings TBD
-* SetUserSettingsFloat(settingId: int, value: float) - sets new value of a particular configuration in the main menu. list of settings TBD
-* GetDummyCoords(vehicle: Car, dummyId: int): float, float, float - returns XYZ of a particular dummy of the car
-
-### Math
-
-#### Min
 ```lua
-/// Returns the smallest of {a} and {b}
-function Min(a: int, b: int): int
-    if a > b 
+/// Checks if this entity is a vehicle
+function IsThisEntityAVehicle(address: int): logical
+    int type = GetEntityType(address)
+    return type == 2
+end
+```
+
+#### SpawnCar
+
+```lua
+/// Spawns a new car like a cheat and returns its handle
+function SpawnCar(modelId: int): int
+
+    int pCheatCar = CCheat_VehicleCheat(modelId)
+    // mark car as owned by player
+    int flags = read_memory_with_offset {address} pCheatCar {offset} 0x428 {size} 4
+    set_bit flags 17 // bHasBeenOwnedByPlayer=true
+    write_memory_with_offset {address} pCheatCar {offset} 0x428 {size} 4 {value} flags
+    Car hCheatCar = get_vehicle_ref {address} pCheatCar
+    return hCheatCar
+
+    /// Spawns a vehicle of this model in front of the player
+    function CCheat_VehicleCheat<cdecl, 0x43A0B0>(vehicleModelId: int): int
+end
+```
+
+#### SetCarPlateText
+
+```lua
+/// Changes the text on car's number place
+function SetCarPlateText(vehicle: Car, plateText: string)
+    int pVehicle = Memory.GetVehiclePointer(vehicle)
+    int pCustomCarPlate = read_memory_with_offset {address} pVehicle {offset} 0x588 {size} 4
+    if is_truthy pCustomCarPlate
     then
-        return b
-    else
-        return a
+        RwTextureDestroy(pCustomCarPlate)
     end
-end
-```
-#### MinF
-```lua
-/// Returns the smallest of {a} and {b}
-function MinF(a: float, b: float): float
-    if a > b 
-    then
-        return b
-    else
-        return a
-    end
-end
-```
-#### Max
-```lua
-/// Returns the largest of {a} and {b}
-function Max(a: int, b: int): int
-    if a < b 
-    then
-        return b
-    else
-        return a
-    end
-end
-```
-#### MaxF
-```lua
-/// Returns the largest of {a} and {b}
-function MaxF(a: float, b: float): float
-    if a < b 
-    then
-        return b
-    else
-        return a
-    end
-end
-```
+    int plateTexture = CCustomCarPlateMgr_CreatePlateTexture(plateText, -1)
+    write_memory_with_offset {address} pVehicle {offset} 0x588 {size} 4 {value} plateTexture
 
-
-#### ToRad
-```lua
-/// Converts degrees to radians
-function ToRad(degrees: float): float
-    float res = degrees * 0.0175 // PI / 180
-    return res
-end
-```
-
-#### ToDeg
-```lua
-/// Converts radians to degrees
-function ToDeg(radians: float): float
-    float res = radians * 57.2958 // 180 / PI
-    return res
-end
-```
-
-
-### Debug
-#### Log
-```lua
-/// Adds a new entry in CLEO.log. Requires `LegacyDebugOpcodes = 1` in cleo\cleo_plugins\SA.DebugUtils.ini 
-function Log(s: string)
-    debug_on
-    write_debug s
-    debug_off
-end
-```
-#### DumpScriptVars
-```lua
-/// writes a list of local variables (0@-31@) to CLEO.log
-:DumpScriptVars
-    int buf = allocate_memory 512
-    string_format {buffer} buf {format} "%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d" {args} 0@ 1@ 2@ 3@ 4@ 5@ 6@ 7@ 8@ 9@ 10@ 11@ 12@ 13@ 14@ 15@ 16@ 17@ 18@ 19@ 20@ 21@ 22@ 23@ 24@ 25@ 26@ 27@ 28@ 29@ 30@ 31@
-    Log(buf)
-    free_memory {address} buf
-return
-```
-#### ViewScriptVars
-```
-/// Prints local variables on screen
-:ViewScriptVars
-    use_text_commands {state} true
-    display_text_formatted {offsetLeft} 50.0 {offsetTop} 100.0 {format} "%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d" {args} 0@ 1@ 2@ 3@ 4@ 5@ 6@ 7@ 8@ 9@ 10@ 11@ 12@ 13@ 14@ 15@ 16@ 17@ 18@ 19@ 20@ 21@ 22@ 23@ 24@ 25@ 26@ 27@ 28@ 29@ 30@ 31@
-return
-```
-* SaveScreenToPng(f: string, left: int, top: int, w: int, h: int) - saves portion of screen to a png file
-
-#### ViewPlayerCoords
-```lua
-/// Prints player coordinates
-function ViewPlayerCoords()
-    float x, y, z
-
-    use_text_commands {state} true
-    x, y, z = get_char_coordinates $scplayer
-    set_text_wrapx {width} 640.0
-    set_text_centre {state} true
-    set_text_centre_size {width} 640.0
-    display_text_formatted {offsetLeft} 320.0 {offsetTop} 20.0 {format} "%.2f %.2f %.2f" {args} x y z
-end
-```
-* ViewEntityCoords3d(entity: int) - prints entity (CVehicle, CPed, CObject) coordinates above it
-
-#### ReloadThisScript
-```lua
-/// Reload current script from disk
-function ReloadThisScript()
-    int buf = allocate_memory 256
-    buf = get_script_filename -1 true
-    stream_custom_script buf
-    free_memory buf
-    terminate_this_script
-end
-```
-
-#### TeleportToNearestCar
-```lua
-/// Teleports player to the nearest car
-function TeleportToNearestCar()
-    float x, y, z
-    float radius = 5.0
-    x, y, z = get_char_coordinates $scplayer
-
-    int handle = get_random_car_in_sphere_no_save_recursive {pos} x y z {radius} radius {findNext} false {skipWrecked} true
-    while handle == -1
-        radius += 5.0
-        if radius > 100.0
-        then
-            return // no cars nearby
-        end
-        handle = get_random_car_in_sphere_no_save_recursive {pos} x y z {radius} radius {findNext} true {skipWrecked} true // get next
-    end
-    
-    warp_char_into_car $scplayer {vehicle} handle
-end
-```
-
-#### TeleportToMarker
-```lua
-/// Teleports player to the red target marker
-function TeleportToMarker()
-    float x, y, z
-    if x, y, z = get_target_blip_coords
-    then
-        set_char_coordinates $scplayer {x} x {y} y {z} z
-    end
-end
-```
-
-#### ClearBlipOnCharDeath
-```lua
-/// Clears the blip on character death
-function ClearBlipOnCharDeath(handle: Char)
-    int address = get_ped_pointer {char} handle
-    int flags = read_memory_with_offset address {offset} 0x474 {size} 4
-    set_bit {var_number} flags {bitIndex} 13
-    write_memory_with_offset address {offset} 0x474 {size} 4 {value} flags
-end
-```
-
-#### GetTimeScale
-```lua
-/// Returns current gameplay speed multiplier (set with set_time_scale)
-function GetTimeScale(): float
-    float speed = read_memory 0x00B7CB64 {size} 4 {vp} false
-    return speed
+    function CCustomCarPlateMgr_CreatePlateTexture<cdecl, 0x6FDEA0>(text: string, plateType: int): int
+    function RwTextureDestroy<cdecl, 0x7F3820>(texture: int)
 end
 ```
 
 #### IsMissionCar
+
 ```lua
 function IsMissionCar(handle: Car): logical
     int ptr = get_vehicle_pointer {handle} handle
@@ -578,6 +412,7 @@ end
 ```
 
 #### SetCarFlag
+
 ```lua
 /// Sets a car flag
 /// flagIdx is one of the VEHICLEFLAG_* constants
@@ -599,6 +434,287 @@ function SetCarFlag(handle: Car, flagIdx: int, state: int)
         clear_bit {var_number} flags {n} bitIdx
     end
     write_memory {address} ptr {size} 1 {value} flags {vp} false
+end
+```
+
+#### OpenCarWindow
+
+```lua
+/// Opens a car window (0-3)
+function OpenCarWindow(vehicle: Car, window: int)
+    int pCar = get_vehicle_pointer {handle} vehicle
+    if int nodeId = GetCarDoorNodeId(window)
+    then
+        CVehicle_SetWindowOpenFlag(pCar, nodeId)
+    end
+    function CVehicle_SetWindowOpenFlag<thiscall,0x6D3080>(struct: int, nodeId: int)
+end
+```
+
+##### CloseCarWindow
+
+```lua
+/// Closes a car window (0-3)
+function CloseCarWindow(vehicle: Car, window: int)
+    int pCar = get_vehicle_pointer {handle} vehicle
+    if int nodeId = GetCarDoorNodeId(window)
+    then
+        CVehicle_ClearWindowOpenFlag(pCar, nodeId)
+    end
+    function CVehicle_ClearWindowOpenFlag<thiscall,0x6D30B0>(struct: int, nodeId: int)
+end
+```
+
+#### IsCarWindowOpen
+
+```lua
+/// Checks if car window (0-3) is open
+function IsCarWindowOpen(vehicle: Car, window: int): logical
+    const ATOMIC_IS_DOOR_WINDOW_OPENED = 12
+    int pCar = get_vehicle_pointer {handle} vehicle
+    int clump = read_memory_with_offset {address} pCar {offset} 0x18 {size} 4
+    if int nodeId = GetCarDoorNodeId(window)
+    then
+        int frame = CClumpModelInfo_GetFrameFromId(clump, nodeId)
+        int atomic = read_memory_with_offset {address} frame {offset} 0x90 {size} 4
+        atomic -= 8
+        int flag = CVisibilityPlugins_GetUserValue(atomic)
+
+        is_bit_set flag ATOMIC_IS_DOOR_WINDOW_OPENED
+    end
+
+    function CVisibilityPlugins_GetUserValue<cdecl,0x7323A0>(atomic: int): int {int16}
+    function CClumpModelInfo_GetFrameFromId<cdecl,0x4C53C0>(clump: int {RpClump*}, id:int): int {RwFrame*}
+end
+```
+
+#### GetCarDoorNodeId
+
+```lua
+/// Returns car node id for a door. (left/right, front/rear) (0-LF,1-RF,2-LR,3-RR)
+function GetCarDoorNodeId(door: int): optional int
+    switch door
+    case 0
+        return 10
+    case 1
+        return 8
+    case 2
+        return 11
+    case 3
+        return 9
+    default
+        return false
+    end
+end
+```
+
+- GetUserSettingsInt(settingId: int): int - returns an integer value of a particular configuration in the main menu. list of settings TBD
+- SetUserSettingsInt(settingId: int, value: int) - sets new value of a particular configuration in the main menu. list of settings TBD
+- GetUserSettingsFloat(settingId: int): float - returns an integer value of a particular configuration in the main menu. list of settings TBD
+- SetUserSettingsFloat(settingId: int, value: float) - sets new value of a particular configuration in the main menu. list of settings TBD
+- GetDummyCoords(vehicle: Car, dummyId: int): float, float, float - returns XYZ of a particular dummy of the car
+
+### Math
+
+#### Min
+
+```lua
+/// Returns the smallest of {a} and {b}
+function Min(a: int, b: int): int
+    if a > b
+    then
+        return b
+    else
+        return a
+    end
+end
+```
+
+#### MinF
+
+```lua
+/// Returns the smallest of {a} and {b}
+function MinF(a: float, b: float): float
+    if a > b
+    then
+        return b
+    else
+        return a
+    end
+end
+```
+
+#### Max
+
+```lua
+/// Returns the largest of {a} and {b}
+function Max(a: int, b: int): int
+    if a < b
+    then
+        return b
+    else
+        return a
+    end
+end
+```
+
+#### MaxF
+
+```lua
+/// Returns the largest of {a} and {b}
+function MaxF(a: float, b: float): float
+    if a < b
+    then
+        return b
+    else
+        return a
+    end
+end
+```
+
+#### ToRad
+
+```lua
+/// Converts degrees to radians
+function ToRad(degrees: float): float
+    float res = degrees * 0.0175 // PI / 180
+    return res
+end
+```
+
+#### ToDeg
+
+```lua
+/// Converts radians to degrees
+function ToDeg(radians: float): float
+    float res = radians * 57.2958 // 180 / PI
+    return res
+end
+```
+
+### Debug
+
+#### Log
+
+```lua
+/// Adds a new entry in CLEO.log. Requires `LegacyDebugOpcodes = 1` in cleo\cleo_plugins\SA.DebugUtils.ini
+function Log(s: string)
+    debug_on
+    write_debug s
+    debug_off
+end
+```
+
+#### DumpScriptVars
+
+```lua
+/// writes a list of local variables (0@-31@) to CLEO.log
+:DumpScriptVars
+    int buf = allocate_memory 512
+    string_format {buffer} buf {format} "%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d" {args} 0@ 1@ 2@ 3@ 4@ 5@ 6@ 7@ 8@ 9@ 10@ 11@ 12@ 13@ 14@ 15@ 16@ 17@ 18@ 19@ 20@ 21@ 22@ 23@ 24@ 25@ 26@ 27@ 28@ 29@ 30@ 31@
+    Log(buf)
+    free_memory {address} buf
+return
+```
+
+#### ViewScriptVars
+
+```
+/// Prints local variables on screen
+:ViewScriptVars
+    use_text_commands {state} true
+    display_text_formatted {offsetLeft} 50.0 {offsetTop} 100.0 {format} "%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d" {args} 0@ 1@ 2@ 3@ 4@ 5@ 6@ 7@ 8@ 9@ 10@ 11@ 12@ 13@ 14@ 15@ 16@ 17@ 18@ 19@ 20@ 21@ 22@ 23@ 24@ 25@ 26@ 27@ 28@ 29@ 30@ 31@
+return
+```
+
+- SaveScreenToPng(f: string, left: int, top: int, w: int, h: int) - saves portion of screen to a png file
+
+#### ViewPlayerCoords
+
+```lua
+/// Prints player coordinates
+function ViewPlayerCoords()
+    float x, y, z
+
+    use_text_commands {state} true
+    x, y, z = get_char_coordinates $scplayer
+    set_text_wrapx {width} 640.0
+    set_text_centre {state} true
+    set_text_centre_size {width} 640.0
+    display_text_formatted {offsetLeft} 320.0 {offsetTop} 20.0 {format} "%.2f %.2f %.2f" {args} x y z
+end
+```
+
+- ViewEntityCoords3d(entity: int) - prints entity (CVehicle, CPed, CObject) coordinates above it
+
+#### ReloadThisScript
+
+```lua
+/// Reload current script from disk
+function ReloadThisScript()
+    int buf = allocate_memory 256
+    buf = get_script_filename -1 true
+    stream_custom_script buf
+    free_memory buf
+    terminate_this_script
+end
+```
+
+#### TeleportToNearestCar
+
+```lua
+/// Teleports player to the nearest car
+function TeleportToNearestCar()
+    float x, y, z
+    float radius = 5.0
+    x, y, z = get_char_coordinates $scplayer
+
+    int handle = get_random_car_in_sphere_no_save_recursive {pos} x y z {radius} radius {findNext} false {skipWrecked} true
+    while handle == -1
+        radius += 5.0
+        if radius > 100.0
+        then
+            return // no cars nearby
+        end
+        handle = get_random_car_in_sphere_no_save_recursive {pos} x y z {radius} radius {findNext} true {skipWrecked} true // get next
+    end
+
+    warp_char_into_car $scplayer {vehicle} handle
+end
+```
+
+#### TeleportToMarker
+
+```lua
+/// Teleports player to the red target marker
+function TeleportToMarker()
+    float x, y, z
+    if x, y, z = get_target_blip_coords
+    then
+        set_char_coordinates $scplayer {x} x {y} y {z} z
+    end
+end
+```
+
+#### ClearBlipOnCharDeath
+
+```lua
+/// Clears the blip on character death
+function ClearBlipOnCharDeath(handle: Char)
+    int address = get_ped_pointer {char} handle
+    int flags = read_memory_with_offset address {offset} 0x474 {size} 4
+    set_bit {var_number} flags {bitIndex} 13
+    write_memory_with_offset address {offset} 0x474 {size} 4 {value} flags
+end
+```
+
+#### GetTimeScale
+
+```lua
+/// Returns current gameplay speed multiplier (set with set_time_scale)
+function GetTimeScale(): float
+    float speed = read_memory 0x00B7CB64 {size} 4 {vp} false
+    return speed
 end
 ```
 
