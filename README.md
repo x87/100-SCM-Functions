@@ -451,7 +451,7 @@ function OpenCarWindow(vehicle: Car, window: int)
 end
 ```
 
-##### CloseCarWindow
+#### CloseCarWindow
 
 ```lua
 /// Closes a car window (0-3)
