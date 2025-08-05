@@ -40,6 +40,9 @@ Read more about functions in Sanny Builder: https://docs.sannybuilder.com/langua
 - [MaxF](#maxf) - Returns the largest of two floats
 - [ToRad](#torad) - Converts degrees to radians
 - [ToDeg](#todeg) - Converts radians to degrees
+- [IfThen](#ifthen) - A Poor man's Ternary Operator
+- [MapRange](#maprange) - Re-maps a number from one range to another.
+- [Lerp](#lerp) - Calculates a number between two numbers at a specific increment (aka linear interpolation)
 
 ## Debug Functions
 
@@ -589,6 +592,46 @@ end
 function ToDeg(radians: float): float
     float res = radians * 57.2958 // 180 / PI
     return res
+end
+```
+
+#### IfThen
+```lua
+/// A Poor man's Ternary Operator
+/// IfThen(1, 5, 10) returns 5, IfThen(0, 5, 10) returns 10
+function IfThen(value: int, ifTrue: int, ifFalse: int): int
+    if is_truthy value
+    then
+        return ifTrue
+    end
+    return ifFalse
+end
+```
+
+#### MapRange
+```lua
+/// Re-maps a number from one range to another.
+/// For example, calling MapRange(2, 0, 10, 0, 100) returns 20.
+function MapRange(value: int, start1: int, stop1: int, start2: int, stop2: int)
+    int n1 = value - start1
+    int n2 = stop1 - start1
+    int n3 = stop2 - start2
+    int n4 = n1 / n2
+    int n5 = n4 * n3
+    int result = n5 + start2
+    return result
+end
+```
+
+#### Lerp
+```lua
+/// Calculates a number between two numbers at a specific increment (aka linear interpolation)
+function Lerp(start: float, stop: float, step: float): float
+    float v0 = 1.0 - step
+    float v1 = v0 * start
+    float v2 = step * stop
+    float result = v1 + v2
+    return result
 end
 ```
 
