@@ -580,8 +580,8 @@ end
 ```lua
 /// Converts degrees to radians
 function ToRad(degrees: float): float
-    float res = degrees * 0.0175 // PI / 180
-    return res
+    degrees *= 0.0175 // PI / 180
+    return degrees
 end
 ```
 
@@ -590,8 +590,8 @@ end
 ```lua
 /// Converts radians to degrees
 function ToDeg(radians: float): float
-    float res = radians * 57.2958 // 180 / PI
-    return res
+    radians *= 57.2958 // 180 / PI
+    return radians
 end
 ```
 
@@ -627,11 +627,13 @@ end
 ```lua
 /// Calculates a number between two numbers at a specific increment (aka linear interpolation)
 function Lerp(start: float, stop: float, step: float): float
-    float v0 = 1.0 - step
-    float v1 = v0 * start
-    float v2 = step * stop
-    float result = v1 + v2
-    return result
+    float v0 = 1.0 
+    v0 -= step
+    v0 *= start
+    float v2 = step 
+    v2 *= stop
+    v0 += v2
+    return v0
 end
 ```
 
