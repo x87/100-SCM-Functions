@@ -18,6 +18,7 @@ Read more about functions in Sanny Builder: https://docs.sannybuilder.com/langua
 - [GetCLEOSDK](#getcleosdk) - Returns a pointer to a function exported from CLEO.asi
 - [GetCLEOVersion](#getcleoversion) - Returns the version of the CLEO library
 - [GetTimeScale](#gettimescale) - Returns current gameplay speed multiplier (set with set_time_scale)
+- [AreWantedStarsFlashing](#arewantedstarsflashing) - Checks if the wanted stars are flashing (after pay'n spray)
 
 ## Vehicle Functions
 
@@ -760,6 +761,21 @@ end
 function GetTimeScale(): float
     float speed = read_memory 0x00B7CB64 {size} 4 {vp} false
     return speed
+end
+```
+
+
+#### AreWantedStarsFlashing
+
+```lua
+function AreWantedStarsFlashing(): logical
+    int pWanted = FindPlayerWanted(0)
+    int wantedLevel = read_memory_with_offset {address} pWanted {offset} 0x2C {size} 4
+    int wantedLevelBeforeParole = read_memory_with_offset {address} pWanted {offset} 0x30 {size} 4
+
+    return wantedLevelBeforeParole > wantedLevel
+
+    function FindPlayerWanted<cdecl, 0x56E230>(playerIndex: int): int
 end
 ```
 
