@@ -831,4 +831,4 @@ end
 
 ## Credits
 
-Seemann, Vital, Miran, OrionSR.
+Seemann, Vital, Miran, OrionSR, vladvo
