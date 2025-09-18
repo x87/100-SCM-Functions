@@ -19,6 +19,7 @@ Read more about functions in Sanny Builder: https://docs.sannybuilder.com/langua
 - [GetCLEOVersion](#getcleoversion) - Returns the version of the CLEO library
 - [GetTimeScale](#gettimescale) - Returns current gameplay speed multiplier (set with set_time_scale)
 - [AreWantedStarsFlashing](#arewantedstarsflashing) - Checks if the wanted stars are flashing (after pay'n spray)
+- [RemoveFromLodConnectedList](#removefromlodconnectedlist) - Undoes the effect of CONNECT_LODS command
 
 ## Vehicle Functions
 
@@ -52,6 +53,7 @@ Read more about functions in Sanny Builder: https://docs.sannybuilder.com/langua
 - [ReloadThisScript](#reloadthisscript) - Reload current script from disk
 - [TeleportToNearestCar](#teleporttonearestcar) - Teleports player to the nearest car
 - [TeleportToMarker](#teleporttomarker) - Teleports player to the red target marker
+- [SetTargetMarker](#settargetmarker) - Sets the red target marker on the map
 - [ViewPlayerCoords](#viewplayercoords) - Prints player coordinates
 - [ViewScriptVars](#viewscriptvars) - Prints local variables on screen
 
@@ -121,8 +123,6 @@ function LoadModel(modelId: int)
 end
 ```
 
-- GetWeatherForecast(hours: int): int - returns weather type coming in {hours}
-
 #### ReplaceStringInFile
 
 ```lua
@@ -189,8 +189,6 @@ function ReplaceStringInFile(filePath: string, find: string, replace: string)
 end
 ```
 
-- IsPointInsideGarage(x: float, y: float, z: float): logical - return true if point is located inside a garage
-
 #### GetEntityPos
 
 ```lua
@@ -211,8 +209,6 @@ function GetEntityPos(address: int): float, float, float
     return x, y, z
 end
 ```
-
-- ClearBlipOnCharDeath(char: int) - makes the blip to disappear when {char} dies
 
 #### IsOnMission
 
@@ -269,6 +265,34 @@ function GetCLEOVersion(): optional int
     return
 
     function GetVersion<stdcall>(): int
+end
+```
+
+#### RemoveFromLodConnectedList
+```lua
+/// Undoes the effect of CONNECT_LODS command
+function RemoveFromLodConnectedList(base: Object, lod: Object)
+    const List_Address = 0xA44800; // TheScripts::ScriptConnectLodsObjects
+    const List_Size = 10 // MAX_NUM_SCRIPT_CONNECT_LODS_OBJECTS
+    const List_Entry_Size = 8 // sizeof(tScriptConnectLodsObject)
+
+    int i, lastIdx = List_Size - 1
+    for i = 0 to lastIdx
+        int ptr = i * List_Entry_Size
+        ptr += List_Address
+
+        int a = read_memory_with_offset {address} ptr {offset} 0 {size} 4
+        int b = read_memory_with_offset {address} ptr {offset} 4 {size} 4
+
+        if and
+            a == base
+            b == lod
+        then
+            write_memory_with_offset {address} ptr {offset} 0 {size} 4 {value} -1
+            write_memory_with_offset {address} ptr {offset} 4 {size} 4 {value} -1
+            break // done
+        end
+    end
 end
 ```
 
@@ -739,6 +763,32 @@ function TeleportToMarker()
     then
         set_char_coordinates $scplayer {x} x {y} y {z} z
     end
+end
+```
+
+#### SetTargetMarker
+```lua
+/// Create a new target marker at the given coordinates
+function SetTargetMarker(x: float, y: float)
+    const BLIP_COORD = 4
+    const BLIP_COLOUR_RED = 0
+    const BLIP_DISPLAY_BLIPONLY = 2
+    const RADAR_SPRITE_WAYPOINT = 41
+    const pFrontEndMenuManager = 0xBA6748
+
+    int blipHandle = read_memory_with_offset {address} pFrontEndMenuManager {offset} 0x2C {size} 4
+    // remove existing marker
+    if blipHandle > 0
+    then
+        CRadar_ClearBlip(blipHandle)
+    end
+    blipHandle = CRadar_SetCoordBlip(BLIP_COORD, x, y, 0.0, BLIP_COLOUR_RED, BLIP_DISPLAY_BLIPONLY)
+    write_memory_with_offset {address} pFrontEndMenuManager {offset} 0x2C {size} 4 {value} blipHandle
+    CRadar_SetBlipSprite(blipHandle, RADAR_SPRITE_WAYPOINT)
+
+    function CRadar_SetCoordBlip<cdecl, 0x583820>(type: int {eBlipType}, x: float, y: float, z: float, int, display: int {eBlipDisplay} ): int {tBlipHandle}
+    function CRadar_SetBlipSprite<cdecl, 0x583D70>(blipHandle: int, spriteId: int {eRadarSprite})
+    function CRadar_ClearBlip<cdecl, 0x587CE0>(blipHandle: int)
 end
 ```
 
