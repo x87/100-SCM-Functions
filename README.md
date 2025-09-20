@@ -15,8 +15,6 @@ Read more about functions in Sanny Builder: https://docs.sannybuilder.com/langua
 - [ReplaceStringInFile](#replacestringinfile) - Replaces the first occurrence of a substring in a file
 - [SetOnMission](#setonmission) - Sets on mission flag
 - [ClearBlipOnCharDeath](#clearbliponchardeath) - Makes the blip to disappear when character dies
-- [GetCLEOSDK](#getcleosdk) - Returns a pointer to a function exported from CLEO.asi
-- [GetCLEOVersion](#getcleoversion) - Returns the version of the CLEO library
 - [GetTimeScale](#gettimescale) - Returns current gameplay speed multiplier (set with set_time_scale)
 - [AreWantedStarsFlashing](#arewantedstarsflashing) - Checks if the wanted stars are flashing (after pay'n spray)
 - [RemoveFromLodConnectedList](#removefromlodconnectedlist) - Undoes the effect of CONNECT_LODS command
@@ -50,12 +48,18 @@ Read more about functions in Sanny Builder: https://docs.sannybuilder.com/langua
 
 - [DumpScriptVars](#dumpscriptvars) - Writes local variables (0@-31@) to CLEO.log
 - [Log](#log) - Adds a new entry in CLEO.log
-- [ReloadThisScript](#reloadthisscript) - Reload current script from disk
 - [TeleportToNearestCar](#teleporttonearestcar) - Teleports player to the nearest car
 - [TeleportToMarker](#teleporttomarker) - Teleports player to the red target marker
 - [SetTargetMarker](#settargetmarker) - Sets the red target marker on the map
 - [ViewPlayerCoords](#viewplayercoords) - Prints player coordinates
 - [ViewScriptVars](#viewscriptvars) - Prints local variables on screen
+
+## Script Manipulation Functions
+
+- [GetCLEOSDK](#getcleosdk) - Returns a pointer to a function exported from CLEO.asi
+- [GetCLEOVersion](#getcleoversion) - Returns the version of the CLEO library
+- [ReloadThisScript](#reloadthisscript) - Reload current script from disk
+- [CreateCustomScriptFromLabel](#createcustomscriptfromlabel) - Creates a new custom script from a label
 
 ### Uncategorized
 
@@ -233,40 +237,6 @@ function SetOnMission(flag: int)
 end
 ```
 
-#### GetCLEOSDK
-
-```lua
-/// Returns a pointer to a function exported from CLEO.asi
-function GetCLEOSDK(name: string): optional int
-    if int cleo = load_dynamic_library {fileName} "CLEO.asi"
-    then
-        if int func = get_dynamic_library_procedure {procName} name cleo
-        then
-            free_dynamic_library cleo
-            return func
-        else
-            free_dynamic_library cleo
-            return
-        end
-    end
-end
-```
-
-#### GetCLEOVersion
-
-```lua
-/// Returns CLEO Library version, e.g. 0x50100000 for 5.1.0
-function GetCLEOVersion(): optional int
-    if GetVersion fn = GetCLEOSDK("_CLEO_GetVersion@0")
-    then
-        int version = fn()
-        return version
-    end
-    return
-
-    function GetVersion<stdcall>(): int
-end
-```
 
 #### RemoveFromLodConnectedList
 ```lua
@@ -717,18 +687,7 @@ end
 
 - ViewEntityCoords3d(entity: int) - prints entity (CVehicle, CPed, CObject) coordinates above it
 
-#### ReloadThisScript
 
-```lua
-/// Reload current script from disk
-function ReloadThisScript()
-    int buf = allocate_memory 256
-    buf = get_script_filename -1 true
-    stream_custom_script buf
-    free_memory buf
-    terminate_this_script
-end
-```
 
 #### TeleportToNearestCar
 
@@ -826,6 +785,83 @@ function AreWantedStarsFlashing(): logical
     return wantedLevelBeforeParole > wantedLevel
 
     function FindPlayerWanted<cdecl, 0x56E230>(playerIndex: int): int
+end
+```
+
+### Script Manipulation
+
+#### GetCLEOSDK
+
+```lua
+/// Returns a pointer to a function exported from CLEO.asi
+function GetCLEOSDK(name: string): optional int
+    if int cleo = load_dynamic_library {fileName} "CLEO.asi"
+    then
+        if int func = get_dynamic_library_procedure {procName} name cleo
+        then
+            free_dynamic_library cleo
+            return func
+        else
+            free_dynamic_library cleo
+            return
+        end
+    end
+end
+```
+
+#### GetCLEOVersion
+
+```lua
+/// Returns CLEO Library version, e.g. 0x50100000 for 5.1.0
+function GetCLEOVersion(): optional int
+    if GetVersion fn = GetCLEOSDK("_CLEO_GetVersion@0")
+    then
+        int version = fn()
+        return version
+    end
+    return
+
+    function GetVersion<stdcall>(): int
+end
+```
+
+#### ReloadThisScript
+
+```lua
+/// Reload current script from disk
+function ReloadThisScript()
+    int buf = allocate_memory 256
+    buf = get_script_filename -1 true
+    stream_custom_script buf
+    free_memory buf
+    terminate_this_script
+end
+```
+
+#### CreateCustomScriptFromLabel
+```lua
+/// Create a new script from local label with up to 16 optional arguments
+/// int scriptAddr = CreateCustomScriptFromLabel(@my_local_script, 1, 2, 3)
+function CreateCustomScriptFromLabel(label: int, ...args: int[16]): optional int
+    if and
+        CLEO_CreateCustomScript CreateCustomScript = GetCLEOSDK("_CLEO_CreateCustomScript@12")
+        CLEO_GetScriptVersion GetScriptVersion = GetCLEOSDK("_CLEO_GetScriptVersion@4")
+        CLEO_SetScriptVersion SetScriptVersion = GetCLEOSDK("_CLEO_SetScriptVersion@8")
+    then
+        int result, script = get_this_script_struct, cur_version = GetScriptVersion(script)
+        
+        SetScriptVersion(script, 0x04040000) // run code in CLEO4 mode to disable argument validation in CLEO5 
+        
+        0AA7: CreateCustomScript 3 0 {fn_args} label 0 script {script_args} args[0] args[1] args[2] args[3] args[4] args[5] args[6] args[7] args[8] args[9] args[10] args[11] args[12] args[13] args[14] args[15]
+        1503:
+        0000: 
+        SetScriptVersion(script, cur_version) // restore previous version
+        return result
+    end
+    return
+    function CLEO_CreateCustomScript<stdcall>(script: int {CRunningScript*}, path: string, label: int)
+    function CLEO_GetScriptVersion<stdcall>(script: int {CRunningScript*}): int
+    function CLEO_SetScriptVersion<stdcall>(script: int {CRunningScript*}, version: int)
 end
 ```
 
