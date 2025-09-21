@@ -273,8 +273,8 @@ end
 /// Returns character personality (pedstats.dat)
 function GetCharPersonality(ped: Char): int {PedStat}
     int pPed = get_ped_pointer {char} ped
-    int statIndex = read_memory_with_offset {address} pPed {offset} 0x59C {size} 4
-    return statIndex
+    int pStat = read_memory_with_offset {address} pPed {offset} 0x59C {size} 4
+    return pStat
 end
 ```
 
@@ -283,10 +283,8 @@ end
 /// Sets character personality (pedstats.dat)
 function SetCharPersonality(ped: Char, statIndex: int {PedStat})
     int pPed = get_ped_pointer {char} ped
-    int pStat = CPedStats_GetPedStatByArrayIndex(stats)
-    write_memory_with_offset {address} pPed {offset} 0x59C {size} 4 {value} pStat
-    
-    function CPedStats_GetPedStatByArrayIndex<cdecl, 0x5DE7C0>(int index)
+    CPed_SetPedStats(pPed, statIndex)
+    function CPed_SetPedStats<thiscall, 0x5DEBC0>(struct: int {CPed}, index: int)
 end
 ```
 
