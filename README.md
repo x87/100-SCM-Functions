@@ -18,6 +18,7 @@ Read more about functions in Sanny Builder: https://docs.sannybuilder.com/langua
 - [GetTimeScale](#gettimescale) - Returns current gameplay speed multiplier (set with set_time_scale)
 - [AreWantedStarsFlashing](#arewantedstarsflashing) - Checks if the wanted stars are flashing (after pay'n spray)
 - [RemoveFromLodConnectedList](#removefromlodconnectedlist) - Undoes the effect of CONNECT_LODS command
+- [SetCharPersonality](#setcharpersonality) - Sets character personality (pedstats.dat)
 
 ## Vehicle Functions
 
@@ -263,6 +264,18 @@ function RemoveFromLodConnectedList(base: Object, lod: Object)
             break // done
         end
     end
+end
+```
+
+#### SetCharPersonality
+```lua
+/// Sets character personality (pedstats.dat)
+function SetCharPersonality(ped: Char, statIndex: int {PedStat})
+    int pPed = get_ped_pointer {char} ped
+    int pStat = CPedStats_GetPedStatByArrayIndex(stats)
+    write_memory_with_offset {address} pPed {offset} 0x59C {size} 4 {value} pStat
+    
+    function CPedStats_GetPedStatByArrayIndex<cdecl, 0x5DE7C0>(int index)
 end
 ```
 
