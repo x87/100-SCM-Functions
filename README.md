@@ -271,7 +271,7 @@ end
 #### GetCharPersonality
 ```lua
 /// Returns character personality (pedstats.dat)
-function GetCharPersonality(ped: Char): int {PedStat}
+function GetCharPersonality(ped: Char): int {CPedStat}
     int pPed = get_ped_pointer {char} ped
     int pStat = read_memory_with_offset {address} pPed {offset} 0x59C {size} 4
     return pStat
@@ -281,7 +281,7 @@ end
 #### SetCharPersonality
 ```lua
 /// Sets character personality (pedstats.dat)
-function SetCharPersonality(ped: Char, statIndex: int {PedStat})
+function SetCharPersonality(ped: Char, statIndex: int {see PedStat enum})
     int pPed = get_ped_pointer {char} ped
     CPed_SetPedStats(pPed, statIndex)
     function CPed_SetPedStats<thiscall, 0x5DEBC0>(struct: int {CPed}, index: int)
