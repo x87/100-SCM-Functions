@@ -274,7 +274,8 @@ end
 function GetCharPersonality(ped: Char): int {CPedStat}
     int pPed = get_ped_pointer {char} ped
     int pStat = read_memory_with_offset {address} pPed {offset} 0x59C {size} 4
-    return pStat
+    int index = read_memory {address} pStat {size} 4 {vp} false
+    return index
 end
 ```
 
