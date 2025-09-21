@@ -18,6 +18,7 @@ Read more about functions in Sanny Builder: https://docs.sannybuilder.com/langua
 - [GetTimeScale](#gettimescale) - Returns current gameplay speed multiplier (set with set_time_scale)
 - [AreWantedStarsFlashing](#arewantedstarsflashing) - Checks if the wanted stars are flashing (after pay'n spray)
 - [RemoveFromLodConnectedList](#removefromlodconnectedlist) - Undoes the effect of CONNECT_LODS command
+- [GetCharPersonality](#getcharpersonality) - Returns character personality (pedstats.dat)
 - [SetCharPersonality](#setcharpersonality) - Sets character personality (pedstats.dat)
 
 ## Vehicle Functions
@@ -264,6 +265,16 @@ function RemoveFromLodConnectedList(base: Object, lod: Object)
             break // done
         end
     end
+end
+```
+
+#### GetCharPersonality
+```lua
+/// Returns character personality (pedstats.dat)
+function GetCharPersonality(ped: Char): int {PedStat}
+    int pPed = get_ped_pointer {char} ped
+    int statIndex = read_memory_with_offset {address} pPed {offset} 0x59C {size} 4
+    return statIndex
 end
 ```
 
@@ -518,12 +529,6 @@ function GetCarDoorNodeId(door: int): optional int
     end
 end
 ```
-
-- GetUserSettingsInt(settingId: int): int - returns an integer value of a particular configuration in the main menu. list of settings TBD
-- SetUserSettingsInt(settingId: int, value: int) - sets new value of a particular configuration in the main menu. list of settings TBD
-- GetUserSettingsFloat(settingId: int): float - returns an integer value of a particular configuration in the main menu. list of settings TBD
-- SetUserSettingsFloat(settingId: int, value: float) - sets new value of a particular configuration in the main menu. list of settings TBD
-- GetDummyCoords(vehicle: Car, dummyId: int): float, float, float - returns XYZ of a particular dummy of the car
 
 ### Math
 
