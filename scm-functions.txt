@@ -1,3 +1,5 @@
+// Source: https://github.com/x87/100-SCM-Functions
+
 /// Returns entity type: 0-nothing, 1-building, 2-vehicle, 3-ped, 4-object, 5-dummy
 function GetEntityType(address: int): int
     int type = read_memory_with_offset {address} address {offset} 0x36 {size} 1
