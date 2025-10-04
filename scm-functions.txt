@@ -181,7 +181,7 @@ end
 /// Don't save the script object in the save file
 function DontSaveObject(obj: Object)
     int pObj = get_object_pointer {object} obj
-    write_memory_with_offset {address} obj {offset} 0x13C {size} 1 {value} 6
+    write_memory_with_offset {address} pObj {offset} 0x13C {size} 1 {value} 6
 end
 
 #### FindCarGeneratorAt
