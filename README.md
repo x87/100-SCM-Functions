@@ -3,6 +3,8 @@ Uses latest [CLEO 5.1](https://cleo.li) / [Sanny Builder 4](https://sannybuilder
 
 Read more about functions in Sanny Builder: https://docs.sannybuilder.com/language/functions
 
+Tested on vanilla GTA SA 1.0 (gta_sa_compact). May not be compatible with other mods and/or libraries.
+
 ## Uncategorized Functions
 
 - [AllocateString / DeallocateString](#allocatestring) - Creates and manages heap-allocated strings
