@@ -20,6 +20,8 @@ Read more about functions in Sanny Builder: https://docs.sannybuilder.com/langua
 - [RemoveFromLodConnectedList](#removefromlodconnectedlist) - Undoes the effect of CONNECT_LODS command
 - [GetCharPersonality](#getcharpersonality) - Returns character personality (pedstats.dat)
 - [SetCharPersonality](#setcharpersonality) - Sets character personality (pedstats.dat)
+- [DontSaveObject](#dontsaveobject) - Don't save the object in the save file
+- [FindCarGeneratorAt](#findcargeneratorat) - Returns the address of active car generator at the coordinates, if one exists
 
 ## Vehicle Functions
 
@@ -286,6 +288,58 @@ function SetCharPersonality(ped: Char, statIndex: int {see PedStat enum})
     int pPed = get_ped_pointer {char} ped
     CPed_SetPedStats(pPed, statIndex)
     function CPed_SetPedStats<thiscall, 0x5DEBC0>(struct: int {CPed}, index: int)
+end
+```
+
+#### DontSaveObject
+```lua
+/// Don't save the scripted object
+function DontSaveObject(obj: Object)
+    int pObj = get_object_pointer {object} obj
+    write_memory_with_offset {address} obj {offset} 0x13C {size} 1 {value} 6
+end
+```
+
+#### FindCarGeneratorAt
+```lua
+/// Returns the address of active car generator at the coordinates, if one exists
+function FindCarGeneratorAt(pos: float[3]): optional int /* CCarGenerator */
+    int i, j, cargen
+    int x[3]
+    
+    // compress input vector
+    for i = 0 to 2
+        pos[i] *= 8.0
+        x[i] =# pos[i]
+    end
+
+    // loop over car generators
+    for cargen = 0xC27AD0 to 0xC2B930 step 0x20
+        int bIsUsed = read_memory_with_offset {address} cargen {offset} 0x1D {size} 1
+        if bIsUsed > 0
+        then
+            int offset = 4
+            for i = 0 to 2
+                // read compressed position of car generator
+                int v = read_memory_with_offset {address} cargen {offset} offset {size} 2
+                sign_extend {var_value} v {fromSize} 2
+                v -= x[i]
+                if or
+                    v > 24
+                    v < -24
+                then
+                    break
+                end
+                offset += 2
+            end
+
+            if i > 2
+            then
+                return cargen
+            end
+        end
+    end
+    return
 end
 ```
 
