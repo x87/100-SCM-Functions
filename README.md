@@ -20,7 +20,7 @@ Read more about functions in Sanny Builder: https://docs.sannybuilder.com/langua
 - [RemoveFromLodConnectedList](#removefromlodconnectedlist) - Undoes the effect of CONNECT_LODS command
 - [GetCharPersonality](#getcharpersonality) - Returns character personality (pedstats.dat)
 - [SetCharPersonality](#setcharpersonality) - Sets character personality (pedstats.dat)
-- [DontSaveObject](#dontsaveobject) - Don't save the object in the save file
+- [DontSaveObject](#dontsaveobject) - Don't save the script object in the save file
 - [FindCarGeneratorAt](#findcargeneratorat) - Returns the address of active car generator at the coordinates, if one exists
 
 ## Vehicle Functions
@@ -293,7 +293,7 @@ end
 
 #### DontSaveObject
 ```lua
-/// Don't save the scripted object
+/// Don't save the script object in the save file
 function DontSaveObject(obj: Object)
     int pObj = get_object_pointer {object} obj
     write_memory_with_offset {address} obj {offset} 0x13C {size} 1 {value} 6
