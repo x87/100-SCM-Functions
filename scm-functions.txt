@@ -225,6 +225,36 @@ function FindCarGeneratorAt(pos: float[3]): optional int /* CCarGenerator */
     return
 end
 
+
+/// Check if the object handle is valid (safely)
+/// does_object_exist may crash on large values
+function IsValidObject(handle: int): logical
+    int ptr = get_object_pointer(handle)
+    return ptr <> 0
+end
+
+/// Check if the car handle is valid (safely)
+/// does_vehicle_exist may crash on large values
+function IsValidVehicle(handle: int): logical
+    int ptr = get_vehicle_pointer(handle)
+    return ptr <> 0
+end
+
+/// Check if the char handle is valid (safely)
+/// does_char_exist may crash on large values
+function IsValidChar(handle: int): logical
+    int ptr = get_ped_pointer(handle)
+    return ptr <> 0
+end
+
+/// Resizes memory block to a new size
+function ResizeMemory(address: int, old_size: int, new_size: int): int
+    int new_buf = allocate_memory {size} new_size
+    copy_memory {src} address {dest} new_buf {size} old_size
+    free_memory {address} address
+    return new_buf
+end
+
 /// Checks if this entity is a vehicle
 function IsThisEntityAVehicle(address: int): logical
     int type = GetEntityType(address)

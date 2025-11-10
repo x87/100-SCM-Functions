@@ -24,6 +24,10 @@ Tested on vanilla GTA SA 1.0 (gta_sa_compact). May not be compatible with other 
 - [SetCharPersonality](#setcharpersonality) - Sets character personality (pedstats.dat)
 - [DontSaveObject](#dontsaveobject) - Don't save the script object in the save file
 - [FindCarGeneratorAt](#findcargeneratorat) - Returns the address of active car generator at the coordinates, if one exists
+- [ResizeMemory](#resizememory) - Resizes memory block to a new size
+- [IsValidObject](#isvalidobject) - Check if the object handle is valid (safely)
+- [IsValidVehicle](#isvalidvehicle) - Check if the car handle is valid (safely)
+- [IsValidChar](#isvalidchar) - Check if the char handle is valid (safely)
 
 ## Vehicle Functions
 
@@ -345,6 +349,46 @@ function FindCarGeneratorAt(pos: float[3]): optional int /* CCarGenerator */
 end
 ```
 
+#### ResizeMemory
+```lua
+/// Resizes memory block to a new size
+function ResizeMemory(address: int, old_size: int, new_size: int): int
+    int new_buf = allocate_memory {size} new_size
+    copy_memory {src} address {dest} new_buf {size} old_size
+    free_memory {address} address
+    return new_buf
+end
+```
+
+#### IsValidObject
+```lua
+/// Check if the object handle is valid (safely)
+/// does_object_exist may crash on large values
+function IsValidObject(handle: int): logical
+    int ptr = get_object_pointer(handle)
+    return ptr <> 0
+end
+```
+
+#### IsValidVehicle
+```lua
+/// Check if the car handle is valid (safely)
+/// does_vehicle_exist may crash on large values
+function IsValidVehicle(handle: int): logical
+    int ptr = get_vehicle_pointer(handle)
+    return ptr <> 0
+end
+```
+
+#### IsValidChar
+```lua
+/// Check if the char handle is valid (safely)
+/// does_char_exist may crash on large values
+function IsValidChar(handle: int): logical
+    int ptr = get_ped_pointer(handle)
+    return ptr <> 0
+end
+```
 ### Vehicles
 
 #### IsThisEntityAVehicle
