@@ -1,5 +1,5 @@
 # Useful SCM Functions for Everyday Coding.
-Uses latest [CLEO 5.1](https://cleo.li) / [Sanny Builder 4](https://sannybuilder.com/)
+Uses [CLEO 5](https://cleo.li) / [Sanny Builder 4](https://sannybuilder.com/)
 
 Read more about functions in Sanny Builder: https://docs.sannybuilder.com/language/functions
 
