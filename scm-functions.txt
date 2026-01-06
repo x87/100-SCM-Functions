@@ -140,7 +140,7 @@ function SetOnMission(flag: int)
 end
 
 /// Undoes the effect of CONNECT_LODS command
-function RemoveFromLodConnectedList(base: Object, lod: Object)
+function DisconnectLods(base: Object, lod: Object)
     const List_Address = 0xA44800 // TheScripts::ScriptConnectLodsObjects
     const List_Size = 10 // MAX_NUM_SCRIPT_CONNECT_LODS_OBJECTS
     const List_Entry_Size = 8 // sizeof(tScriptConnectLodsObject)

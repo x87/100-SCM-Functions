@@ -20,7 +20,7 @@ Tested on vanilla GTA SA 1.0 (gta_sa_compact). May not be compatible with other 
 - [ClearBlipOnCharDeath](#clearbliponchardeath) - Makes the blip to disappear when character dies
 - [GetTimeScale](#gettimescale) - Returns current gameplay speed multiplier (set with set_time_scale)
 - [AreWantedStarsFlashing](#arewantedstarsflashing) - Checks if the wanted stars are flashing (after pay'n spray)
-- [RemoveFromLodConnectedList](#removefromlodconnectedlist) - Undoes the effect of CONNECT_LODS command
+- [DisconnectLods](#disconnectlods) - Undoes the effect of CONNECT_LODS command
 - [GetCharPersonality](#getcharpersonality) - Returns character personality (pedstats.dat)
 - [SetCharPersonality](#setcharpersonality) - Sets character personality (pedstats.dat)
 - [DontSaveObject](#dontsaveobject) - Don't save the script object in the save file
@@ -252,11 +252,11 @@ function SetOnMission(flag: int)
 end
 ```
 
-#### RemoveFromLodConnectedList
+#### DisconnectLods
 
 ```lua
 /// Undoes the effect of CONNECT_LODS command
-function RemoveFromLodConnectedList(base: Object, lod: Object)
+function DisconnectLods(base: Object, lod: Object)
     const List_Address = 0xA44800 // TheScripts::ScriptConnectLodsObjects
     const List_Size = 10 // MAX_NUM_SCRIPT_CONNECT_LODS_OBJECTS
     const List_Entry_Size = 8 // sizeof(tScriptConnectLodsObject)
