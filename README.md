@@ -1,4 +1,5 @@
 # Useful SCM Functions for Everyday Coding.
+
 Uses [CLEO 5](https://cleo.li) / [Sanny Builder 4](https://sannybuilder.com/)
 
 Read more about functions in Sanny Builder: https://docs.sannybuilder.com/language/functions
@@ -251,8 +252,8 @@ function SetOnMission(flag: int)
 end
 ```
 
-
 #### RemoveFromLodConnectedList
+
 ```lua
 /// Undoes the effect of CONNECT_LODS command
 function RemoveFromLodConnectedList(base: Object, lod: Object)
@@ -281,6 +282,7 @@ end
 ```
 
 #### GetCharPersonality
+
 ```lua
 /// Returns character personality (pedstats.dat)
 function GetCharPersonality(ped: Char): int {CPedStat}
@@ -292,6 +294,7 @@ end
 ```
 
 #### SetCharPersonality
+
 ```lua
 /// Sets character personality (pedstats.dat)
 function SetCharPersonality(ped: Char, statIndex: int {see PedStat enum})
@@ -302,6 +305,7 @@ end
 ```
 
 #### DontSaveObject
+
 ```lua
 /// Don't save the script object in the save file
 function DontSaveObject(obj: Object)
@@ -311,12 +315,13 @@ end
 ```
 
 #### FindCarGeneratorAt
+
 ```lua
 /// Returns the address of active car generator at the coordinates, if one exists
 function FindCarGeneratorAt(pos: float[3]): optional int /* CCarGenerator */
     int i, j, cargen
     int x[3]
-    
+
     // compress input vector
     for i = 0 to 2
         pos[i] *= 8.0
@@ -354,6 +359,7 @@ end
 ```
 
 #### ResizeMemory
+
 ```lua
 /// Resizes memory block to a new size
 function ResizeMemory(address: int, old_size: int, new_size: int): int
@@ -365,6 +371,7 @@ end
 ```
 
 #### IsValidObject
+
 ```lua
 /// Check if the object handle is valid (safely)
 /// does_object_exist may crash on large values
@@ -375,6 +382,7 @@ end
 ```
 
 #### IsValidVehicle
+
 ```lua
 /// Check if the car handle is valid (safely)
 /// does_vehicle_exist may crash on large values
@@ -385,6 +393,7 @@ end
 ```
 
 #### IsValidChar
+
 ```lua
 /// Check if the char handle is valid (safely)
 /// does_char_exist may crash on large values
@@ -395,6 +404,7 @@ end
 ```
 
 #### GetAreaCode
+
 ```lua
 /// Finds area (interior) index for world coordinates
 function GetAreaCode(pos: float[3]): int
@@ -407,9 +417,9 @@ function GetAreaCode(pos: float[3]): int
     then
         area = read_memory_with_offset {address} found {offset} 0x2F {size} 1 // CEntity::m_nAreaCode
     end
-    
+
     return area
-    
+
     function CWorld__FindNearestObjectOfType<cdecl, 0x5693F0>(modelId: int, posPtr: int, radius: float, b2D: int, buildings: int, vehicles: int, peds: int, objects: int, dummies: int): int
 end
 ```
@@ -733,6 +743,7 @@ end
 ```
 
 #### IfThen
+
 ```lua
 /// A Poor man's Ternary Operator
 /// IfThen(1, 5, 10) returns 5, IfThen(0, 5, 10) returns 10
@@ -746,6 +757,7 @@ end
 ```
 
 #### MapRange
+
 ```lua
 /// Re-maps a number from one range to another.
 /// For example, calling MapRange(2, 0, 10, 0, 100) returns 20.
@@ -761,13 +773,14 @@ end
 ```
 
 #### Lerp
+
 ```lua
 /// Calculates a number between two numbers at a specific increment (aka linear interpolation)
 function Lerp(start: float, stop: float, step: float): float
-    float v0 = 1.0 
+    float v0 = 1.0
     v0 -= step
     v0 *= start
-    float v2 = step 
+    float v2 = step
     v2 *= stop
     v0 += v2
     return v0
@@ -775,6 +788,7 @@ end
 ```
 
 #### ToBinary
+
 ```lua
 /// Convert decimal number to a binary (42 -> "101010")
 /// Out must be at least 33 bytes long to store all bits + null-terminator
@@ -806,6 +820,7 @@ end
 ```
 
 #### Clamp
+
 ```lua
 /// Clamps an integer value between min and max
 function Clamp(value: int, min: int, max: int): int
@@ -822,6 +837,7 @@ end
 ```
 
 #### ClampF
+
 ```lua
 /// Clamps a float value between min and max
 function ClampF(value: float, min: float, max: float): float
@@ -864,15 +880,13 @@ return
 
 #### ViewScriptVars
 
-```
+```lua
 /// Prints local variables on screen
 :ViewScriptVars
     use_text_commands {state} true
     display_text_formatted {offsetLeft} 50.0 {offsetTop} 100.0 {format} "%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d" {args} 0@ 1@ 2@ 3@ 4@ 5@ 6@ 7@ 8@ 9@ 10@ 11@ 12@ 13@ 14@ 15@ 16@ 17@ 18@ 19@ 20@ 21@ 22@ 23@ 24@ 25@ 26@ 27@ 28@ 29@ 30@ 31@
 return
 ```
-
-- SaveScreenToPng(f: string, left: int, top: int, w: int, h: int) - saves portion of screen to a png file
 
 #### ViewPlayerCoords
 
@@ -889,10 +903,6 @@ function ViewPlayerCoords()
     display_text_formatted {offsetLeft} 320.0 {offsetTop} 20.0 {format} "%.2f %.2f %.2f" {args} x y z
 end
 ```
-
-- ViewEntityCoords3d(entity: int) - prints entity (CVehicle, CPed, CObject) coordinates above it
-
-
 
 #### TeleportToNearestCar
 
@@ -931,6 +941,7 @@ end
 ```
 
 #### SetTargetMarker
+
 ```lua
 /// Create a new target marker at the given coordinates
 function SetTargetMarker(x: float, y: float)
@@ -977,7 +988,6 @@ function GetTimeScale(): float
     return speed
 end
 ```
-
 
 #### AreWantedStarsFlashing
 
@@ -1044,6 +1054,7 @@ end
 ```
 
 #### CreateCustomScriptFromLabel
+
 ```lua
 /// Create a new script from local label with up to 16 optional arguments
 /// int scriptAddr = CreateCustomScriptFromLabel(@my_local_script, 1, 2, 3)
@@ -1054,12 +1065,12 @@ function CreateCustomScriptFromLabel(label: int, ...args: int[16]): optional int
         CLEO_SetScriptVersion SetScriptVersion = GetCLEOSDK("_CLEO_SetScriptVersion@8")
     then
         int result, script = get_this_script_struct, cur_version = GetScriptVersion(script)
-        
-        SetScriptVersion(script, 0x04040000) // run code in CLEO4 mode to disable argument validation in CLEO5 
-        
+
+        SetScriptVersion(script, 0x04040000) // run code in CLEO4 mode to disable argument validation in CLEO5
+
         0AA7: CreateCustomScript 3 0 {fn_args} label 0 script {script_args} args[0] args[1] args[2] args[3] args[4] args[5] args[6] args[7] args[8] args[9] args[10] args[11] args[12] args[13] args[14] args[15]
         1503:
-        0000: 
+        0000:
         SetScriptVersion(script, cur_version) // restore previous version
         return result
     end
