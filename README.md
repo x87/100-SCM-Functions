@@ -28,6 +28,7 @@ Tested on vanilla GTA SA 1.0 (gta_sa_compact). May not be compatible with other 
 - [IsValidObject](#isvalidobject) - Check if the object handle is valid (safely)
 - [IsValidVehicle](#isvalidvehicle) - Check if the car handle is valid (safely)
 - [IsValidChar](#isvalidchar) - Check if the char handle is valid (safely)
+- [GetAreaCode](#getareacode) - Finds area (interior) index for world coordinates
 
 ## Vehicle Functions
 
@@ -53,6 +54,9 @@ Tested on vanilla GTA SA 1.0 (gta_sa_compact). May not be compatible with other 
 - [IfThen](#ifthen) - A Poor man's Ternary Operator
 - [MapRange](#maprange) - Re-maps a number from one range to another.
 - [Lerp](#lerp) - Calculates a number between two numbers at a specific increment (aka linear interpolation)
+- [ToBinary](#tobinary) - Convert decimal number to a binary string
+- [Clamp](#clamp) - Clamps an integer between a minimum and maximum value
+- [ClampF](#clampf) - Clamps a float between a minimum and maximum value
 
 ## Debug Functions
 
@@ -141,7 +145,7 @@ end
 
 ```lua
 /// Replaces the first occurence of {find_string} found in the file at {filePath} with {replace_string} in-place
-function ReplaceStringInFile(filePath: string, find: string, replace: string)
+function ReplaceStringInFile(filePath: string, find_string: string, replace_string: string)
     int f
 
     // open file for reading
@@ -220,7 +224,7 @@ function GetEntityPos(address: int): float, float, float
     x = read_memory_with_offset {address} vec {offset} 0x0 {size} 4
     y = read_memory_with_offset {address} vec {offset} 0x4 {size} 4
     z = read_memory_with_offset {address} vec {offset} 0x8 {size} 4
-    return x, y, z
+    return x y z
 end
 ```
 
@@ -252,7 +256,7 @@ end
 ```lua
 /// Undoes the effect of CONNECT_LODS command
 function RemoveFromLodConnectedList(base: Object, lod: Object)
-    const List_Address = 0xA44800; // TheScripts::ScriptConnectLodsObjects
+    const List_Address = 0xA44800 // TheScripts::ScriptConnectLodsObjects
     const List_Size = 10 // MAX_NUM_SCRIPT_CONNECT_LODS_OBJECTS
     const List_Entry_Size = 8 // sizeof(tScriptConnectLodsObject)
 
@@ -389,6 +393,27 @@ function IsValidChar(handle: int): logical
     return ptr <> 0
 end
 ```
+
+#### GetAreaCode
+```lua
+/// Finds area (interior) index for world coordinates
+function GetAreaCode(pos: float[3]): int
+    int area = 0
+
+    int posPtr = get_var_pointer pos
+    int found = CWorld__FindNearestObjectOfType(-1, posPtr, 50.0, false, true, false, false, false, false)
+    if
+        found <> 0
+    then
+        area = read_memory_with_offset {address} found {offset} 0x2F {size} 1 // CEntity::m_nAreaCode
+    end
+    
+    return area
+    
+    function CWorld__FindNearestObjectOfType<cdecl, 0x5693F0>(modelId: int, posPtr: int, radius: float, b2D: int, buildings: int, vehicles: int, peds: int, objects: int, dummies: int): int
+end
+```
+
 ### Vehicles
 
 #### IsThisEntityAVehicle
@@ -724,7 +749,7 @@ end
 ```lua
 /// Re-maps a number from one range to another.
 /// For example, calling MapRange(2, 0, 10, 0, 100) returns 20.
-function MapRange(value: int, start1: int, stop1: int, start2: int, stop2: int)
+function MapRange(value: int, start1: int, stop1: int, start2: int, stop2: int): int
     int n1 = value - start1
     int n2 = stop1 - start1
     int n3 = stop2 - start2
@@ -749,6 +774,69 @@ function Lerp(start: float, stop: float, step: float): float
 end
 ```
 
+#### ToBinary
+```lua
+/// Convert decimal number to a binary (42 -> "101010")
+/// Out must be at least 33 bytes long to store all bits + null-terminator
+function ToBinary(value: int, out: string)
+    int started = false
+    int i, n = 0
+    for i = 31 downto 0
+        int bit = value >> i
+        bit &= 1
+
+        if is_truthy bit
+        then
+            started = true
+        end
+
+        if is_truthy started
+        then
+            int v = 0x30 + bit // "1" or "0"
+            write_memory_with_offset {address} out {offset} n {size} 1 {value} v
+            n++
+        end
+
+    end
+    if not is_truthy started
+    then
+        write_memory {address} out {size} 1 {value} 0x30 {vp} false // "0"
+    end
+end
+```
+
+#### Clamp
+```lua
+/// Clamps an integer value between min and max
+function Clamp(value: int, min: int, max: int): int
+    if value < min
+    then
+        return min
+    end
+    if value > max
+    then
+        return max
+    end
+    return value
+end
+```
+
+#### ClampF
+```lua
+/// Clamps a float value between min and max
+function ClampF(value: float, min: float, max: float): float
+    if value < min
+    then
+        return min
+    end
+    if value > max
+    then
+        return max
+    end
+    return value
+end
+```
+
 ### Debug
 
 #### Log
@@ -767,10 +855,10 @@ end
 ```lua
 /// writes a list of local variables (0@-31@) to CLEO.log
 :DumpScriptVars
-    int buf = allocate_memory 512
-    string_format {buffer} buf {format} "%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d" {args} 0@ 1@ 2@ 3@ 4@ 5@ 6@ 7@ 8@ 9@ 10@ 11@ 12@ 13@ 14@ 15@ 16@ 17@ 18@ 19@ 20@ 21@ 22@ 23@ 24@ 25@ 26@ 27@ 28@ 29@ 30@ 31@
-    Log(buf)
-    free_memory {address} buf
+    33@ = allocate_memory 512
+    string_format {buffer} 33@ {format} "%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d" {args} 0@ 1@ 2@ 3@ 4@ 5@ 6@ 7@ 8@ 9@ 10@ 11@ 12@ 13@ 14@ 15@ 16@ 17@ 18@ 19@ 20@ 21@ 22@ 23@ 24@ 25@ 26@ 27@ 28@ 29@ 30@ 31@
+    Log(33@)
+    free_memory {address} 33@
 return
 ```
 
