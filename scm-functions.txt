@@ -264,6 +264,61 @@ function GetAreaCode(pos: float[3]): int
     function CWorld__FindNearestObjectOfType<cdecl, 0x5693F0>(modelId: int, posPtr: int, radius: float, b2D: int, buildings: int, vehicles: int, peds: int, objects: int, dummies: int): int
 end
 
+const PHYSICALFLAG_EXTRA_HEAVY = 0
+const PHYSICALFLAG_DO_GRAVITY = 1
+const PHYSICALFLAG_INFINITE_MASS = 2
+const PHYSICALFLAG_INFINITE_MASS_FIXED = 3
+const PHYSICALFLAG_PED_PHYSICS = 4
+const PHYSICALFLAG_DOOR_PHYSICS = 5
+const PHYSICALFLAG_HANGING_PHYSICS = 6
+const PHYSICALFLAG_POOL_BALL_PHYSICS = 7
+const PHYSICALFLAG_IS_IN_WATER = 8
+const PHYSICALFLAG_COLLIDED_THIS_FRAME = 9
+const PHYSICALFLAG_UNFREEZABLE = 10
+const PHYSICALFLAG_TRAIN_FORCE_COL = 11
+const PHYSICALFLAG_SKIP_LINE_COL = 12
+const PHYSICALFLAG_COORS_FROZEN_BY_SCRIPT = 13
+const PHYSICALFLAG_DONT_LOAD_COLLISION = 14
+const PHYSICALFLAG_HALF_SPEED_COLLISION = 15
+const PHYSICALFLAG_FORCE_HIT_RETURN_FALSE = 16
+const PHYSICALFLAG_DONT_PROCESS_COLLISION_OUR_SELVES = 17
+const PHYSICALFLAG_NOT_DAMAGED_BY_BULLETS = 18
+const PHYSICALFLAG_NOT_DAMAGED_BY_FLAMES = 19
+const PHYSICALFLAG_NOT_DAMAGED_BY_COLLISIONS = 20
+const PHYSICALFLAG_NOT_DAMAGED_BY_MELEE = 21
+const PHYSICALFLAG_ONLY_DAMAGED_BY_PLAYER = 22
+const PHYSICALFLAG_IGNORES_EXPLOSIONS = 23
+const PHYSICALFLAG_FLYER = 24
+const PHYSICALFLAG_NEVER_GO_STATIC = 25
+const PHYSICALFLAG_USING_SPECIAL_COL_MODEL = 26
+const PHYSICALFLAG_FORCE_FULL_WATER_CHECK = 27
+const PHYSICALFLAG_USES_COLLISION_RECORDS = 28
+const PHYSICALFLAG_RENDER_SCORCHED = 29
+const PHYSICALFLAG_DOOR_HIT_END_STOP = 30
+const PHYSICALFLAG_CARRIED_BY_ROPE = 31
+
+/// Checks if a CPhysical flag is set
+/// flagIdx is one of the PHYSICALFLAG_* constants
+function IsPhysicalFlagSet(entity: int, flagIdx: int): logical
+    const CPhysical_PhysicalFlags = 0x40
+    int flags = read_memory_with_offset {address} entity {offset} CPhysical_PhysicalFlags {size} 4
+    is_bit_set {var_number} flags {bitIndex} flagIdx
+end
+
+/// Sets a CPhysical flag
+/// flagIdx is one of the PHYSICALFLAG_* constants
+function SetPhysicalFlag(pEntity: int, flagIdx: int, state: int)
+    const CPhysical_PhysicalFlags = 0x40
+    int flags = read_memory_with_offset {address} pEntity {offset} CPhysical_PhysicalFlags {size} 4
+    if is_truthy state 
+    then
+        set_bit {var_number} flags {n} flagIdx
+    else
+        clear_bit {var_number} flags {n} flagIdx
+    end
+    write_memory_with_offset {address} pEntity {offset} CPhysical_PhysicalFlags {size} 4 {value} flags
+end
+
 /// Resizes memory block to a new size
 function ResizeMemory(address: int, old_size: int, new_size: int): int
     int new_buf = allocate_memory {size} new_size
@@ -375,9 +430,9 @@ const VEHICLEFLAG_USECARCHEATS = 57                // If this is true will set t
 const VEHICLEFLAG_DONTSETCOLOURWHENREMAPPING = 58  // If the texture gets remapped we don't want to change the colour with it.
 const VEHICLEFLAG_USEDFORREPLAY = 59               // This car is controlled by replay and should be removed when replay is done.
 
-/// Returns a car flag
+/// Checks if a car flag is set
 /// flagIdx is one of the VEHICLEFLAG_* constants
-function GetCarFlag(handle: Car, flagIdx: int): logical
+function IsCarFlagSet(handle: Car, flagIdx: int): logical
     int ptr = get_vehicle_pointer {handle} handle
     int bitIdx = flagIdx % 8
 
